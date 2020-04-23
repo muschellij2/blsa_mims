@@ -1,17 +1,51 @@
-read_mat = function(mat) {
+mad = function(df, epoch = "1 min") {
+  require("magrittr")
+  mad = df %>% 
+    dplyr::mutate(         
+      r = sqrt(X^2 + Y^2 + Z^2),
+      HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, epoch)) %>% 
+    dplyr::group_by(HEADER_TIME_STAMP) %>% 
+    dplyr::summarise(
+      MAD = mean(abs(r - mean(r)))
+    )
+}
+
+get_dynamic_range = function(header) {
+  hdr = strsplit(header, "---")[[1]]
+  hdr = gsub("-", "", hdr)
+  hdr = hdr[ !hdr %in% ""]
+  ACTIGRAPH_SERIALNUM_PATTERN <- "SerialNumber:([A-Za-z0-9]+)StartTime.*"
+  sn = sub(ACTIGRAPH_SERIALNUM_PATTERN, "\\1", hdr[[2]])
+  at <- substr(sn, 1, 3)
+  gr <- switch(at, MAT = "3", CLE = "6", MOS = "8", TAS = "8")
+  if (stringr::str_detect(hdr[[1]], "IMU")) {
+    gr <- "16"
+  }
+  gr = as.numeric(gr)
+  gr = c(-gr, gr)
+  gr
+}
+
+read_mat = function(mat, verbose = TRUE) {
   L = try({
     R.matlab::readMat(mat)
-  })
+  }, silent = TRUE)
   if (!inherits(L, "try-error")) {
     return(L)
   }
   
-  names = rhdf5::h5ls(mat)$name
+  info = rhdf5::h5ls(mat, all = TRUE)
+  names = info$name
   convert_mat_string = function(x) {
     rawToChar(as.raw(x))
   }
   L = lapply(names, function(x) {
-    print(x)
+    # print(x)
+    if (verbose) {
+      xinfo = info$dim[info$name %in% x][[1]]
+      msg = paste0("Reading in ", x, ", dimensions: ", xinfo)
+      message(msg)
+    }
     out = rhdf5::h5read(file = mat, name = x)
     out_attrs = rhdf5::h5readAttributes(mat, name = x)
     MATLAB_class = out_attrs$MATLAB_class
@@ -26,15 +60,21 @@ read_mat = function(mat) {
   return(L)
 }
 
-read_acc_mat = function(mat, check_names = TRUE) {
+read_acc_mat = function(mat, ..., check_names = TRUE) {
   names = rhdf5::h5ls(mat)$name
   if (check_names) {
     stopifnot(all(c("Xi", "fs", "hed", "startdate", "starttime") %in%
                     names))
   }
-  L = read_mat(mat)
+  L = read_mat(mat, ...)
   colnames(L$Xi) = c("X", "Y", "Z")
   L$Xi = tibble::as_tibble(L$Xi)
+  L$startdate = gsub("_", "/", L$startdate)
+  L$starttime = gsub("_", ":", L$starttime)
+  start_date = lubridate::mdy_hms(paste0(L$startdate, " ", L$starttime))
+  L$fs = c(L$fs)
+  srate = L$fs
+  L$Xi$HEADER_TIME_STAMP = start_date + (seq(0, nrow(L$Xi) - 1)/srate)
   L
 }
 
@@ -102,4 +142,24 @@ tabber = function(
   tab = as.table(tab)
   tab = c(tab)
   return(tab) 
+}
+
+cwa_mims = function(file, epoch = "1 min", ...) {
+  require("magrittr")
+  acc = biobankr::read_cwa(file)
+  hdr = acc$header
+  dynamic_range = c(-hdr$accrange, hdr$accrange)
+  acc = acc$data
+  acc = as.data.frame(acc)
+  acc = acc %>% 
+    dplyr::rename(X = x,
+           Y = y,
+           Z = z,
+           HEADER_TIME_STAMP = time) %>% 
+    dplyr::select(HEADER_TIME_STAMP, X, Y, Z)
+  mims = MIMSunit::mims_unit(acc, 
+                             dynamic_range = dynamic_range, 
+                             epoch = epoch,
+                             ...)
+  mims
 }
