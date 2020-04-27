@@ -1,6 +1,7 @@
 library(MIMSunit)
 library(dplyr)
 library(readr)
+library(ActivityIndex)
 options(digits.secs = 3)
 source(here::here("code/helper_functions.R"))
 user = Sys.info()[['user']]
@@ -34,6 +35,15 @@ if (!file.exists(outfile)) {
   df = df %>%
     select(HEADER_TIME_STAMP, X, Y, Z)
   
+  df = df %>%
+    rename(Index = HEADER_TIME_STAMP)
+    
+  ai = computeActivityIndex(df, sigma0 = 0, epoch = 60, hertz = srate)
+  ai = ai %>% 
+    rename(HEADER_TIME_STAMP = RecordNo)
+  
+  df = df %>%
+    rename(HEADER_TIME_STAMP = Index)
   mad = df %>% 
     mutate(         
       r = sqrt(X^2 + Y^2 + Z^2),
@@ -46,6 +56,11 @@ if (!file.exists(outfile)) {
       MEDAD = median(abs_diff),
       SD  = sd(r)
     )
+  su = function(x) sort(unique(x))
+  stopifnot(isTRUE(
+    all.equal(su(mad$HEADER_TIME_STAMP), su(ai$HEADER_TIME_STAMP))
+  ))
+  mad = full_join(mad, ai)
   # c1 = mad %>% 
   #   select(-HEADER_TIME_STAMP) %>% 
   #   corrr:::correlate()
@@ -61,6 +76,7 @@ if (!file.exists(outfile)) {
   mims = mims_unit(df, dynamic_range = dynamic_range, epoch = "1 min")
 
   mims = full_join(mims, mad)
+  mims = full_join(mims, ai)
   
   readr::write_csv(mims, outfile)
   rm(mims)

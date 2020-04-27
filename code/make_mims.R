@@ -1,6 +1,8 @@
 library(MIMSunit)
 library(dplyr)
 library(readr)
+source(here::here("code/helper_functions.R"))
+
 user = Sys.info()[['user']]
 if (user == "johnmuschelli") {
   # setwd("~/Johns Hopkins/Jacek Urbanek - BLSA Accelerometry/gt3x/")
@@ -8,13 +10,7 @@ if (user == "johnmuschelli") {
 } else {
   setwd("~/gt3x")
 }
-source("code/he")
 
-sub_thing = function(hdr, string) {
-  x = hdr[grepl(string, hdr)]
-  x = gsub(string, "", x)
-  x = trimws(x)
-}
 
 fnames = list.files(pattern = "[.]mat")
 fnames = list.files(pattern = "RAW.csv.gz")
