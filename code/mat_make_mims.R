@@ -16,7 +16,7 @@ data_dir = file.path(root_data_dir, "mats")
 fnames = list.files(path = data_dir, full.names = TRUE, pattern = "[.]mat")
 ifile =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifile) || ifile < 1) {
-  ifile = 2
+  ifile = 1
 }
 print(ifile)
 fname = fnames[ifile]
@@ -37,13 +37,14 @@ if (!file.exists(outfile)) {
   
   df = df %>%
     rename(Index = HEADER_TIME_STAMP)
-    
   ai = computeActivityIndex(df, sigma0 = 0, epoch = 60, hertz = srate)
   ai = ai %>% 
-    rename(HEADER_TIME_STAMP = RecordNo)
-  
+    rename(HEADER_TIME_STAMP = RecordNo)  
   df = df %>%
     rename(HEADER_TIME_STAMP = Index)
+
+  # ai = quick_ai(df)
+
   mad = df %>% 
     mutate(         
       r = sqrt(X^2 + Y^2 + Z^2),
@@ -76,8 +77,7 @@ if (!file.exists(outfile)) {
   mims = mims_unit(df, dynamic_range = dynamic_range, epoch = "1 min")
 
   mims = full_join(mims, mad)
-  mims = full_join(mims, ai)
-  
+
   readr::write_csv(mims, outfile)
   rm(mims)
 }

@@ -1,3 +1,44 @@
+
+# my version of AI with sigma0 = 0, agrees but has slight differences if 
+# not full second/minute is measured 
+quick_ai = function(df, epoch = "1 min") {
+  require("magrittr")
+  sec_df = df %>% 
+    dplyr::mutate(
+      HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, "1 sec")) %>% 
+    dplyr::group_by(HEADER_TIME_STAMP) %>% 
+    dplyr::summarise(
+      AI = sqrt((var(X) + var(Y) + var(Z))/3),
+    )
+  sec_df %>% 
+    dplyr::mutate(
+      HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, 
+                                                unit = epoch)) %>% 
+    dplyr::group_by(HEADER_TIME_STAMP) %>% 
+    dplyr::summarise(
+      AI = sum(AI)
+    )
+}
+
+# gets all measures to compare other than MIMS
+full_measures = function(df, epoch = "1 min") {
+  ai_df = quick_ai(df, epoch = epoch)
+  mad = df %>% 
+    dplyr::mutate(         
+      r = sqrt(X^2 + Y^2 + Z^2),
+      HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, epoch)) %>% 
+    dplyr::group_by(HEADER_TIME_STAMP) %>% 
+    dplyr::mutate(abs_diff = abs(r - mean(r))) %>% 
+    dplyr::summarise(
+      mean_r = mean(r),
+      MAD = mean(abs_diff),
+      MEDAD = median(abs_diff),
+      SD  = sd(r)
+    )
+  dplyr::full_join(mad, ai_df)
+}
+
+# short function for MAD
 mad = function(df, epoch = "1 min") {
   require("magrittr")
   mad = df %>% 
@@ -10,11 +51,12 @@ mad = function(df, epoch = "1 min") {
     )
 }
 
+# get the dynamic range in g from header (from Jacek header)
 get_dynamic_range = function(header) {
   hdr = strsplit(header, "---")[[1]]
   hdr = gsub("-", "", hdr)
   hdr = hdr[ !hdr %in% ""]
-  ACTIGRAPH_SERIALNUM_PATTERN <- "SerialNumber:([A-Za-z0-9]+)StartTime.*"
+  ACTIGRAPH_SERIALNUM_PATTERN <- "SerialNumber:\\s*([A-Za-z0-9]+)\\s*StartTime.*"
   sn = sub(ACTIGRAPH_SERIALNUM_PATTERN, "\\1", hdr[[2]])
   at <- substr(sn, 1, 3)
   gr <- switch(at, MAT = "3", CLE = "6", MOS = "8", TAS = "8")
@@ -26,7 +68,13 @@ get_dynamic_range = function(header) {
   gr
 }
 
+# general function to read in matlab .mat
 read_mat = function(mat, verbose = TRUE) {
+  if (grepl(".gz$", mat)) {
+    mat = R.utils::gunzip(mat, 
+      temporary = TRUE,
+      remove = FALSE)
+  }
   L = try({
     R.matlab::readMat(mat)
   }, silent = TRUE)
@@ -60,6 +108,7 @@ read_mat = function(mat, verbose = TRUE) {
   return(L)
 }
 
+# specific function to read in Jacek accelerometry .mat
 read_acc_mat = function(mat, ..., check_names = TRUE) {
   names = rhdf5::h5ls(mat)$name
   if (check_names) {
@@ -78,12 +127,15 @@ read_acc_mat = function(mat, ..., check_names = TRUE) {
   L
 }
 
+# this is for parsing the header from RAW csv from Actilife
 sub_thing = function(hdr, string) {
   x = hdr[grepl(string, hdr)]
   x = gsub(string, "", x)
   x = trimws(x)
 }
 
+# zeroes are imputed for idle sleep mode, want to make the numbers repeat
+# useful for comparison to RAW CSV from actilife
 fix_zeros = function(gt3x) {
   zero = rowSums(gt3x[, c("X", "Y", "Z")] == 0) == 3
   names(zero) = NULL
@@ -100,13 +152,14 @@ fix_zeros = function(gt3x) {
   gt3x
 }
 
-WearNonWear = function(ac, win = 90){
+# from Jacek - implementation of Choi
+WearNonWear = function(ac, win = 90, threshold = 0){
   ### Create WNW flags
   # 0 - non-wear
   # 1 - wear
   
   ac.ones = rep(0, length(ac))
-  ac.ones[ac > 0] = 1
+  ac.ones[ac > threshold] = 1
   
   meanw = runstats::RunningMean(x = ac.ones, W = win)
   meanw[meanw < 1/win] = 0
@@ -124,7 +177,7 @@ WearNonWear = function(ac, win = 90){
   return(out)
 }
 
-
+# quick tabulation function of long logicals
 tabber = function(
   x, 
   y, 
@@ -144,6 +197,7 @@ tabber = function(
   return(tab) 
 }
 
+# get MIMS from a CWA file (for Biobank)
 cwa_mims = function(file, epoch = "1 min", ...) {
   require("magrittr")
   acc = biobankr::read_cwa(file)
@@ -153,13 +207,37 @@ cwa_mims = function(file, epoch = "1 min", ...) {
   acc = as.data.frame(acc)
   acc = acc %>% 
     dplyr::rename(X = x,
-           Y = y,
-           Z = z,
-           HEADER_TIME_STAMP = time) %>% 
+                  Y = y,
+                  Z = z,
+                  HEADER_TIME_STAMP = time) %>% 
     dplyr::select(HEADER_TIME_STAMP, X, Y, Z)
   mims = MIMSunit::mims_unit(acc, 
                              dynamic_range = dynamic_range, 
                              epoch = epoch,
                              ...)
   mims
+}
+
+read_xi_dims = function(mat) {
+  require("magrittr")
+  if (grepl(".gz$", mat)) {
+    mat = R.utils::gunzip(mat, 
+                          temporary = TRUE,
+                          remove = FALSE)
+  }
+  L = try({
+    R.matlab::readMat(mat)
+  }, silent = TRUE)
+  if (!inherits(L, "try-error")) {
+    return(L)
+  }
+  
+  info = rhdf5::h5ls(mat, all = TRUE)
+  d = info %>% 
+    dplyr::filter(name %in% "Xi") %>% 
+    dplyr::pull(dim)
+  rate = as.numeric(rhdf5::h5read(file = mat, name = "fs"))
+  list(dim = d,
+       nrow = max(as.numeric(strsplit(d, " x ")[[1]])),
+       srate = rate)
 }
