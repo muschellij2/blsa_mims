@@ -136,21 +136,7 @@ sub_thing = function(hdr, string) {
 
 # zeroes are imputed for idle sleep mode, want to make the numbers repeat
 # useful for comparison to RAW CSV from actilife
-fix_zeros = function(gt3x) {
-  zero = rowSums(gt3x[, c("X", "Y", "Z")] == 0) == 3
-  names(zero) = NULL
-  gt3x$X[zero] = NA
-  gt3x$Y[zero] = NA
-  gt3x$Z[zero] = NA
-  gt3x$X = zoo::na.locf(gt3x$X, na.rm = FALSE)
-  gt3x$Y = zoo::na.locf(gt3x$Y, na.rm = FALSE)
-  gt3x$Z = zoo::na.locf(gt3x$Z, na.rm = FALSE)
-  
-  gt3x$X[ is.na(gt3x$X)] = 0
-  gt3x$Y[ is.na(gt3x$Y)] = 0
-  gt3x$Z[ is.na(gt3x$Z)] = 0
-  gt3x
-}
+fix_zeros = SummarizedActigraphy::fix_zeros
 
 # from Jacek - implementation of Choi
 WearNonWear = function(ac, win = 90, threshold = 0){
