@@ -3,17 +3,9 @@ library(dplyr)
 library(readr)
 source(here::here("code/helper_functions.R"))
 
-user = Sys.info()[['user']]
-if (user == "johnmuschelli") {
-  # setwd("~/Johns Hopkins/Jacek Urbanek - BLSA Accelerometry/gt3x/")
-  setwd("/Volumes/CT_DATA/mims_comparison/mats/")
-} else {
-  setwd("~/gt3x")
-}
 
-
-fnames = list.files(pattern = "[.]mat")
-fnames = list.files(pattern = "RAW.csv.gz")
+fnames = list.files(pattern = "[.]mat", path = here::here("mat"))
+# fnames = list.files(pattern = "RAW.csv.gz", path = here::here("mat"))
 ifile =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifile) || ifile < 1) {
   ifile = 2
