@@ -136,7 +136,6 @@ sub_thing = function(hdr, string) {
 
 # zeroes are imputed for idle sleep mode, want to make the numbers repeat
 # useful for comparison to RAW CSV from actilife
-fix_zeros = SummarizedActigraphy::fix_zeros
 
 # from Jacek - implementation of Choi
 WearNonWear = function(ac, win = 90, threshold = 0){
