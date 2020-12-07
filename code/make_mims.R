@@ -4,8 +4,8 @@ library(readr)
 source(here::here("code/helper_functions.R"))
 
 
-fnames = list.files(pattern = "[.]mat", path = here::here("mat"))
-# fnames = list.files(pattern = "RAW.csv.gz", path = here::here("mat"))
+fnames = list.files(pattern = "RAW.csv.gz", path = here::here("gt3x"),
+                    full.names = TRUE)
 ifile =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifile) || ifile < 1) {
   ifile = 2
@@ -15,7 +15,7 @@ fname = fnames[ifile]
 print(ifile)
 print(fname)
 
-outfile = sub("RAW", "_MIMS", fname)
+outfile = here::here("open_measures", sub("RAW", "_MIMS", basename(fname)))
 if (!file.exists(outfile)) {
   csv_file = R.utils::gunzip(fname,
                              remove = FALSE, 
@@ -27,27 +27,13 @@ if (!file.exists(outfile)) {
   meta$gr = as.numeric(meta$gr)
   dynamic_range = c(-meta$gr, meta$gr)
   
-  df = read_csv(csv_file,
-                skip = 10)
-  hdr = read_lines(csv_file,
-                   n_max = 10)
-  file.remove(csv_file)
-  
-  st = sub_thing(hdr, "Start Time")
-  sd = sub_thing(hdr, "Start Date")
-  srate = as.numeric(sub(".*at (\\d*) Hz.*", "\\1", hdr[1]))
-  start_date = lubridate::mdy_hms(paste0(sd, " ", st))
-  
-  df$HEADER_TIME_STAMP = seq(0, nrow(df) - 1)/srate
-  df$HEADER_TIME_STAMP = start_date + df$HEADER_TIME_STAMP
+  df = SummarizedActigraphy::read_acc_csv(csv_file)
+  hdr = df$parsed_header
+  df = df$data
   
   df = df %>%
-    rename(X = `Accelerometer X`,
-           Y = `Accelerometer Y`,
-           Z = `Accelerometer Z`) %>% 
-    select(HEADER_TIME_STAMP, X, Y, Z)
+    select(HEADER_TIME_STAMP = time, X, Y, Z)
   
-  # df = MIMSunit::import_actigraph_csv(csv_file, has_ts = FALSE)
   df = as.data.frame(df)
   mims = mims_unit(df, dynamic_range = dynamic_range, epoch="1 min")
   
