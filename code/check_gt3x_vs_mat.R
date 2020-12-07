@@ -30,8 +30,8 @@ setdiff(gt3x, df$gt3x_file)
   gt3x_file = idf$gt3x_file
   
   mat = read_acc_mat(fname)
-  srate = df$fs
-  header = df$hed
+  srate = mat$fs
+  header = mat$hed
   dynamic_range =  get_dynamic_range(header)
   
   mat = mat$Xi

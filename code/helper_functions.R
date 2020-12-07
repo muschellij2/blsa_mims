@@ -1,3 +1,6 @@
+round_away_zero = function (x, n = 0) {
+  return(sign(x) * trunc(abs(x) * 10^n + 0.5)/10^n)
+}
 
 # my version of AI with sigma0 = 0, agrees but has slight differences if 
 # not full second/minute is measured 
