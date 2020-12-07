@@ -53,5 +53,10 @@ setdiff(gt3x, df$gt3x_file)
   
   d = gt3x[, c("X", "Y", "Z")] - mat[, c("X", "Y", "Z")]
   bad = rowSums(abs(d) > 0.001) > 0
-  stopifnot(all(!bad))
+  check = all(!bad)
+  if (!check) {
+    print(head(mat[bad, ]))
+    print(head(gt3x[bad, ]))
+  }
+  stopifnot(check)
 # }
