@@ -8,7 +8,8 @@ fnames = list.files(path = here::here("mats"), full.names = TRUE, pattern = "[.]
 gt3x = list.files(path = here::here("gt3x"), full.names = TRUE, pattern = "[.]gt3x")
 ifile =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifile) || ifile < 1) {
-  ifile = 2
+  # ifile = 29
+  ifile = 218
 }
 df = tibble::tibble(
   mat_file = fnames,
@@ -38,7 +39,6 @@ setdiff(gt3x, df$gt3x_file)
   mat = mat %>%
     select(time = HEADER_TIME_STAMP, X, Y, Z)
   
-  
   gt3x = read.gt3x::read.gt3x(gt3x_file, verbose = FALSE, 
                               asDataFrame = TRUE, imputeZeroes = TRUE)
   
@@ -62,5 +62,27 @@ setdiff(gt3x, df$gt3x_file)
   stopifnot(check)
   
   rm(gt3x)
+  
+  
+  res = AGread::read_gt3x(gt3x_file, verbose = TRUE, flag_idle_sleep = TRUE)
+  res = res$RAW
+  colnames(res) = sub("Accelerometer_", "", colnames(res))
+  res = res %>% 
+    rename(time = Timestamp)
+  
+  stopifnot(nrow(res) == nrow(mat))
+  
+  d = res[, c("X", "Y", "Z")] - mat[, c("X", "Y", "Z")]
+  bad = rowSums(abs(d) > 0.001) > 0
+  rm(d)
+  check = all(!bad)
+  if (!check) {
+    print(head(mat[bad, ]))
+    print(head(res[bad, ]))
+  }
+  stopifnot(check)
+  
+  
+  
   rm(mat)
 # }
