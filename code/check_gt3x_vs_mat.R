@@ -72,8 +72,12 @@ if (!all(file.exists(qc_file, qc_file2))) {
   
   rm(gt3x)
   
+  rm(bad)
+  rm(check)
   
-  res = AGread::read_gt3x(gt3x_file, verbose = TRUE, flag_idle_sleep = TRUE)
+  res = AGread::read_gt3x(gt3x_file, verbose = TRUE, 
+                          include = c("METADATA", "EVENT", "ACTIVITY", "ACTIVITY2"),
+                          flag_idle_sleep = TRUE)
   res = res$RAW
   colnames(res) = sub("Accelerometer_", "", colnames(res))
   res = res %>% 
