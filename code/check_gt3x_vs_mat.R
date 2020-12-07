@@ -39,7 +39,7 @@ setdiff(gt3x, df$gt3x_file)
     select(time = HEADER_TIME_STAMP, X, Y, Z)
   
   
-  gt3x = read.gt3x::read.gt3x(gt3x_file, verbose = TRUE, 
+  gt3x = read.gt3x::read.gt3x(gt3x_file, verbose = FALSE, 
                               asDataFrame = TRUE, imputeZeroes = TRUE)
   
   gt3x = SummarizedActigraphy::fix_zeros(gt3x)
@@ -53,10 +53,14 @@ setdiff(gt3x, df$gt3x_file)
   
   d = gt3x[, c("X", "Y", "Z")] - mat[, c("X", "Y", "Z")]
   bad = rowSums(abs(d) > 0.001) > 0
+  rm(d)
   check = all(!bad)
   if (!check) {
     print(head(mat[bad, ]))
     print(head(gt3x[bad, ]))
   }
   stopifnot(check)
+  
+  rm(gt3x)
+  rm(mat)
 # }
