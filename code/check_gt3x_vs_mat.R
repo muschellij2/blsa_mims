@@ -33,7 +33,7 @@ fname = idf$mat_file
 print(fname)
 gt3x_file = idf$gt3x_file
 qc_file = idf$qc_file
-qc_file2 = idf$qc_file
+qc_file2 = idf$qc_file2
 
 if (!all(file.exists(qc_file, qc_file2))) {
   mat = read_acc_mat(fname)
