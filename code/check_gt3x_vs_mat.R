@@ -9,7 +9,7 @@ gt3x = list.files(path = here::here("gt3x"), full.names = TRUE, pattern = "[.]gt
 ifile =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifile) || ifile < 1) {
   # ifile = 29
-  ifile = 21
+  ifile = 1
 }
 df = tibble::tibble(
   mat_file = fnames,
@@ -25,6 +25,11 @@ df = df %>%
 # these shouldn't exist
 setdiff(gt3x, df$gt3x_file)
 
+# df = df %>%
+#   filter(file.exists(qc_file) & !file.exists(qc_file2))
+
+# df = df %>% 
+#   filter(!file.exists(qc_file))
 
 # for (ifile in 1:100) {
 print(ifile)
@@ -36,6 +41,7 @@ qc_file = idf$qc_file
 qc_file2 = idf$qc_file2
 
 if (!all(file.exists(qc_file, qc_file2))) {
+  
   mat = read_acc_mat(fname)
   srate = mat$fs
   header = mat$hed
@@ -45,8 +51,10 @@ if (!all(file.exists(qc_file, qc_file2))) {
   mat = mat %>%
     select(time = HEADER_TIME_STAMP, X, Y, Z)
   
-  gt3x = read.gt3x::read.gt3x(gt3x_file, verbose = FALSE, 
-                              asDataFrame = TRUE, imputeZeroes = TRUE)
+  gt3x = read.gt3x::read.gt3x(
+    gt3x_file, verbose = FALSE, 
+    asDataFrame = TRUE, 
+    imputeZeroes = TRUE)
   
   gt3x = SummarizedActigraphy::fix_zeros(gt3x)
   
@@ -57,10 +65,18 @@ if (!all(file.exists(qc_file, qc_file2))) {
   dtime = gt3x$time - mat$time
   stopifnot(all(dtime == 0))
   
-  d = gt3x[, c("X", "Y", "Z")] - mat[, c("X", "Y", "Z")]
+  xyz = c("X", "Y", "Z")
+  d = gt3x[, xyz] - mat[, xyz]
   bad = rowSums(abs(d) > 0.001) > 0
-  rm(d)
   check = all(!bad)
+  if (!check) {
+    mat_bad = rowSums(mat[which(bad),xyz] == 0) == 3
+    # all 0s
+    # if (all(mat_bad)) {
+    #   check = TRUE
+    # }
+  }
+  rm(d)
   if (!check) {
     print(head(mat[bad, ]))
     print(head(gt3x[bad, ]))
@@ -75,7 +91,8 @@ if (!all(file.exists(qc_file, qc_file2))) {
   rm(bad)
   rm(check)
   
-  res = AGread::read_gt3x(gt3x_file, verbose = TRUE, 
+  res = AGread::read_gt3x(gt3x_file, 
+                          verbose = TRUE, 
                           include = c("METADATA", "EVENT", "ACTIVITY", "ACTIVITY2"),
                           flag_idle_sleep = TRUE)
   res = res$RAW
@@ -84,6 +101,8 @@ if (!all(file.exists(qc_file, qc_file2))) {
     rename(time = Timestamp)
   
   stopifnot(nrow(res) == nrow(mat))
+  
+  # res = SummarizedActigraphy::fix_zeros(res)
   
   d = res[, c("X", "Y", "Z")] - mat[, c("X", "Y", "Z")]
   bad = rowSums(abs(d) > 0.001) > 0
