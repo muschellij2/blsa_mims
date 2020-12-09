@@ -9,7 +9,7 @@ gt3x = list.files(path = here::here("gt3x"), full.names = TRUE, pattern = "[.]gt
 ifile =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifile) || ifile < 1) {
   # ifile = 29
-  ifile = 1
+  ifile = 998
 }
 df = tibble::tibble(
   mat_file = fnames,
@@ -86,7 +86,7 @@ if (!all(file.exists(qc_file, qc_file2))) {
     writeLines("TRUE", qc_file)
   }
   
-  rm(gt3x)
+  rm(gt3x); gc(); gc()
   
   rm(bad)
   rm(check)
