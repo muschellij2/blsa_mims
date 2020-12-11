@@ -9,7 +9,7 @@ gt3x = list.files(path = here::here("gt3x"), full.names = TRUE, pattern = "[.]gt
 ifile =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifile) || ifile < 1) {
   # ifile = 29
-  ifile = 998
+  ifile = 1
 }
 df = tibble::tibble(
   mat_file = fnames,
@@ -19,19 +19,22 @@ df = df %>%
          qc_file = here::here("qc", paste0(id, "_read.gt3x.txt")),
          qc_file2 = here::here("qc", paste0(id, "_AGread.txt"))
   )
+rm(fnames)
 
+df = df %>% 
+  filter(grepl("^[0-9]", basename(gt3x_file)))
 df = df %>% 
   filter(file.exists(gt3x_file))
 # these shouldn't exist
 setdiff(gt3x, df$gt3x_file)
 
 # df = df %>%
-#   filter(file.exists(qc_file) & !file.exists(qc_file2))
+# filter(file.exists(qc_file) & !file.exists(qc_file2))
 
 # df = df %>% 
 #   filter(!file.exists(qc_file))
 
-# for (ifile in 1:100) {
+# for (ifile in 1:nrow(df)) {
 print(ifile)
 idf = df[ifile,]
 fname = idf$mat_file
@@ -50,6 +53,9 @@ if (!all(file.exists(qc_file, qc_file2))) {
   mat = mat$Xi
   mat = mat %>%
     select(time = HEADER_TIME_STAMP, X, Y, Z)
+  if (anyNA(mat)) {
+    next
+  }
   
   gt3x = read.gt3x::read.gt3x(
     gt3x_file, verbose = FALSE, 
@@ -81,42 +87,47 @@ if (!all(file.exists(qc_file, qc_file2))) {
     print(head(mat[bad, ]))
     print(head(gt3x[bad, ]))
   }
-  stopifnot(check)
+  # stopifnot(check)
   if (check) {
     writeLines("TRUE", qc_file)
   }
   
-  rm(gt3x); gc(); gc()
-  
   rm(bad)
   rm(check)
+  rm(dtime)
   
-  res = AGread::read_gt3x(gt3x_file, 
-                          verbose = TRUE, 
-                          include = c("METADATA", "EVENT", "ACTIVITY", "ACTIVITY2"),
-                          flag_idle_sleep = TRUE)
-  res = res$RAW
-  colnames(res) = sub("Accelerometer_", "", colnames(res))
-  res = res %>% 
-    rename(time = Timestamp)
+  rm(gt3x); gc(); gc()
   
-  stopifnot(nrow(res) == nrow(mat))
   
-  # res = SummarizedActigraphy::fix_zeros(res)
-  
-  d = res[, c("X", "Y", "Z")] - mat[, c("X", "Y", "Z")]
-  bad = rowSums(abs(d) > 0.001) > 0
-  rm(d)
-  check = all(!bad)
-  if (!check) {
-    print(head(mat[bad, ]))
-    print(head(res[bad, ]))
+  res = try({AGread::read_gt3x(gt3x_file, 
+                               verbose = TRUE, 
+                               include = c("METADATA", "EVENT", "ACTIVITY", "ACTIVITY2"),
+                               flag_idle_sleep = FALSE)
+  })
+  if (!inherits(res, "try-error")) {
+    res = res$RAW
+    colnames(res) = sub("Accelerometer_", "", colnames(res))
+    res = res %>% 
+      rename(time = Timestamp)
+    
+    stopifnot(nrow(res) == nrow(mat))
+    
+    # res = SummarizedActigraphy::fix_zeros(res)
+    
+    d = res[, c("X", "Y", "Z")] - mat[, c("X", "Y", "Z")]
+    bad = rowSums(abs(d) > 0.001) > 0
+    rm(d)
+    check = all(!bad)
+    if (!check) {
+      print(head(mat[bad, ]))
+      print(head(res[bad, ]))
+    }
+    # stopifnot(check)
+    if (check) {
+      writeLines("TRUE", qc_file2)
+    }
+    rm(res)
   }
-  stopifnot(check)
-  if (check) {
-    writeLines("TRUE", qc_file2)
-  }
-  
   
   rm(mat)
 }
