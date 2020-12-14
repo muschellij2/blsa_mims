@@ -51,7 +51,8 @@ if (!file.exists(outfile)) {
   acc_df = acc_df$Xi
   acc_df = acc_df %>%
     select(HEADER_TIME_STAMP, X, Y, Z)
-  
+  stopifnot(!anyNA(acc_df))
+    
   out = calculate_measures(
     df = acc_df, 
     fix_zeros = TRUE, 
