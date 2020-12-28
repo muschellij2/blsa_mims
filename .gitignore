@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
 compare/
 csv/
 mims/
@@ -14,3 +15,4 @@ gt3x/
 qc/
 code/CSV.*
 resampled/
+notes_MK/
