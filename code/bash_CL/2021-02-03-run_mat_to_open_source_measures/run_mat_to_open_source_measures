@@ -1,0 +1,8 @@
+#!/bin/bash
+# Author: Marta Karas <mkaras2@jhu.edu>
+# Description: launch R script to derive minute-level open source measures
+# from raw accelerometry data. 
+
+# Run R script 
+module load conda_R
+Rscript --vanilla /dcl01/smart/data/activity/blsa_mims/code/data_preprocessing/mat_to_open_source_measures.R $SGE_TASK_ID
