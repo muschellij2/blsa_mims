@@ -10,7 +10,7 @@ args = commandArgs(trailingOnly = TRUE)
 #' - ENMO 
 #' 
 #' input files dir: /mats/
-#' output files dir: /open_source_measures/MIMS/
+#' output files dir: /open_source_measures/
 #' 
 #' use:
 #' qrsh -l mem_free=50G,h_vmem=50G,h_fsize=50G,h_stack=256M

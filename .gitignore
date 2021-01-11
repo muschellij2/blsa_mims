@@ -5,6 +5,7 @@
 .DS_Store
 compare/
 csv/
+csv_wear_flag/
 mims/
 results/
 covariates/

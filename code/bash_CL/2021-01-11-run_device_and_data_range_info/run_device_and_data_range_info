@@ -1,0 +1,8 @@
+#!/bin/bash
+# Author: Marta Karas <mkaras2@jhu.edu>
+# Description: launch R script to get device info and data range info
+# from raw accelerometry data. 
+
+# Run R script 
+module load R
+Rscript --vanilla /dcl01/smart/data/activity/blsa_mims/code/data_preprocessing/2021-01-11-device_and_data_range_info.R 
