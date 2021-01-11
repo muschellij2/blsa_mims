@@ -4,5 +4,5 @@
 # from raw accelerometry data. 
 
 # Run R script 
-module load R
+module load conda_R
 Rscript --vanilla /dcl01/smart/data/activity/blsa_mims/code/data_preprocessing/csv_to_wear_flag.R 
