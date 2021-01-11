@@ -5,10 +5,6 @@ args = commandArgs(trailingOnly = TRUE)
 #' measurements [g] along three orthogonal axes. It retrieves and saves 
 #' device info and data range info. 
 
-library(readr)
-library(read.gt3x)
-library(lubridate)
-library(dplyr)
 options(digits.secs = 3)
 
 # source util functions
@@ -39,25 +35,35 @@ df$dynamic_range_max = NA
 # iterate over files with raw output from ActiLife 
 for (fidx in 1:fnames_l){
   fname = fnames[fidx]
-  message(paste0("fidx: ", fidx, ", fname: ", basename(fname)))
-  # read raw accelerometry data .mat file
-  acc_df = read_acc_mat(fname)
-  # pull meta information about the file 
-  srate = acc_df$fs
-  header = acc_df$hed
-  dynamic_range = get_dynamic_range(header)
-  sn = get_serial_num(header)
-  # pull min/max vals across all axes
-  acc_df_range_xyz <- sapply(c("X", "Y", "Z"), function(r) range(acc_df$Xi[[r]]))
-  acc_df_range <- range(as.vector(acc_df_range_xyz))
-  # store values
-  df$sn[fidx] <- sn
-  df$accel_min[fidx] <- acc_df_range[1]
-  df$accel_max[fidx] <- acc_df_range[2]
-  df$dynamic_range_min[fidx] <- dynamic_range[1]
-  df$dynamic_range_max[fidx] <- dynamic_range[2]
+  print(paste0("fidx: ", fidx, ", fname: ", basename(fname)))
+  
+  tryCatch({
+    # read raw accelerometry data .mat file
+    acc_df = read_acc_mat(fname)
+    # pull meta information about the file 
+    srate = acc_df$fs
+    header = acc_df$hed
+    dynamic_range = get_dynamic_range(header)
+    sn = get_serial_num(header)
+    # pull min/max vals across all axes
+    acc_df_range_xyz <- sapply(c("X", "Y", "Z"), function(r) range(acc_df$Xi[[r]], na.rm = TRUE))
+    acc_df_range <- range(as.vector(acc_df_range_xyz))
+    # store values
+    df$sn[fidx] <- sn
+    df$accel_min[fidx] <- acc_df_range[1]
+    df$accel_max[fidx] <- acc_df_range[2]
+    df$dynamic_range_min[fidx] <- dynamic_range[1]
+    df$dynamic_range_max[fidx] <- dynamic_range[2]
+  }, error = function(e) {
+    print(e)
+  })
   rm(acc_df)
+  
+  if (fidx %% 100 == 0) {
+    # save current state of the results to file 
+    saveRDS(df, paste0(here::here(), "/results/2021-01-11-device_and_data_range_info.rds"))
+  }
 }
 
-# save results to file 
-readr::write_rds(df, here::here("results", "2021-01-11-device_and_data_range_info.rds"))
+# save final results to file 
+saveRDS(df, paste0(here::here(), "/results/2021-01-11-device_and_data_range_info.rds"))
