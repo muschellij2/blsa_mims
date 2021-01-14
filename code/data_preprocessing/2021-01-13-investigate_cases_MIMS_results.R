@@ -63,11 +63,23 @@ acc_df = acc_df %>%
 stopifnot(!anyNA(acc_df))
 
 # compute MIMS, AI, MAD 
-out_ALL0 = SummarizedActigraphy::calculate_measures(
-  df = acc_df, 
-  fix_zeros = TRUE, 
-  dynamic_range = dynamic_range,
-  calculate_mims = TRUE,
-  verbose = TRUE)
-out_ALL0 = dplyr::rename(out_ALL0, HEADER_TIME_STAMP = time)
+out_mims = MIMSunit::mims_unit(acc_df, epoch = "1 min", dynamic_range = c(-8, 8))
+dim(out_mims)
+# 11520     2
+
+head(out_mims)
+
+which_neg <- which(out_mims$MIMS_UNIT < 0)
+out_mims$MIMS_UNIT[out_mims$MIMS_UNIT < 0]
+
+length(which_neg)
+# 312
+range(which_neg)
+# 2111 2422
+
+sum(out_mims$MIMS_UNIT< 0)
+# 312
+
+
+
 

@@ -155,9 +155,6 @@ for (i in 1:nrow(fpaths_df_1stvisit)){
 }
 
 # save as data frame
-fout_path <- paste0(here::here(), "/results/2021-01-13-pscm_ac_corr.rds")
+fout_path <- paste0(here::here(), "/results/2021-01-13-osm_ac_corr.rds")
 saveRDS(out_out_all, fout_path)
-
-
-
 
