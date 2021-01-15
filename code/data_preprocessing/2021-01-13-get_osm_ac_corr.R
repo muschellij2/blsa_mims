@@ -26,7 +26,7 @@ fpaths_osm = sort(list.files(path = paste0(here::here(), "/open_source_measures"
 
 # file paths to IDs 
 id_ac  = gsub("60sec.csv", "", basename(fpaths_ac))
-id_osm = gsub("_OSM", "", basename(fpaths_osm))
+id_osm = gsub("_OSM.rds", "", basename(fpaths_osm))
 
 # define vector of file paths to open source summary measures (OSM)
 fpaths_df_ac  = data.frame(file_id = id_ac, file_path_ac = fpaths_ac) %>% mutate(exists_ac = 1)
@@ -155,6 +155,7 @@ for (i in 1:nrow(fpaths_df_1stvisit)){
 }
 
 # save as data frame
-fout_path <- paste0(here::here(), "/results/2021-01-13-osm_ac_corr.rds")
+# fout_path <- paste0(here::here(), "/results/2021-01-13-osm_ac_corr.rds")
+fout_path <- paste0(here::here(), "/results/2021-01-15-osm_ac_corr.rds")
 saveRDS(out_out_all, fout_path)
 
