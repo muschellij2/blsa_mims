@@ -7,6 +7,7 @@ compare/
 csv/
 csv_old/
 csv_wear_flag/
+data_processed/
 mims/
 results/
 covariates/
