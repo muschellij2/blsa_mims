@@ -4,10 +4,10 @@
 #' data with the measures.
 #' 
 #' input files: 
-#' > /data_processed/2021-01-18-measures_masterfile_winsorized.rds
+#' > /data_processed/2021-01-19-measures_masterfile_winsorized.rds
 #' 
 #' output files: 
-#' > /results/2021-01-18-correlations_between_measures.rds
+#' > /results/2021-01-19-correlations_between_measures.rds
 
 
 rm(list = ls())
@@ -15,10 +15,11 @@ library(dplyr)
 library(data.table)
 library(lubridate)
 
-fpath_tmp <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile_winsorized.rds")
+fpath_tmp <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile_winsorized.rds")
 dat <- readRDS(fpath_tmp)
 dim(dat)
 # Jan 18, 2021: 5791560      10
+# Jan 19, 2021: 6147240      10
 
 # function to correlation matrix' upper triangle vector from data frame
 dat_to_corr_uppertri <- function(dat, corr_col_names = c("AC", "MIMS", "MAD", "ENMO", "AI")){
@@ -65,9 +66,9 @@ dat_corr_comb <- rbind(
 
 dim(dat_corr_comb)
 length(unique(dat_corr_comb$file_id))
+# [1] 721
 
 # save as data frame
-# fout_path <- paste0(here::here(), "/results/2021-01-13-osm_ac_corr.rds")
-fout_path <- paste0(here::here(), "/results/2021-01-18-correlations_between_measures.rds")
+fout_path <- paste0(here::here(), "/results/2021-01-19-correlations_between_measures.rds")
 saveRDS(dat_corr_comb, fout_path)
 
