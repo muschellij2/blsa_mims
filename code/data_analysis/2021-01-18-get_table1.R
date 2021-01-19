@@ -57,15 +57,3 @@ dat_comb_nan_test <-
 sum(dat_comb_nan_test$visit > 0)
     
 
-%>% 
-  filter(is.na(mastervisit_entry)) %>%
-  select(file_id, subj_id, visit_id) %>%
-  mutate(file_id_date = as.Date(str_sub(file_id,-11,-2)), .after = "file_id") %>%
-  arrange(file_id_date) %>% 
-  
-  There is also one 1st accelerometry visit data file (751801WaTAS1D46140224 (2017-09-19)); I see no entry for 7518 participant ID in mastervisit.rdata despite this visit is from 2017. 
-
-
-
-
-
