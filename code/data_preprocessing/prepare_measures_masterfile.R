@@ -108,7 +108,7 @@ for (i in 1:nrow(fpaths_df_1stvisit)){
   # combine files
   f_comb <- f_osm %>% 
     dplyr::inner_join(f_ac, by = "HEADER_TIME_STAMP") %>%
-    dplyr::select(HEADER_TIME_STAMP, AC, MIMS, MAD, ENMO, AI) %>%
+    # dplyr::select(HEADER_TIME_STAMP, AC, MIMS, MAD, ENMO, AI) %>%
     dplyr::mutate(file_id = file_id, .before = everything()) %>%
     dplyr::mutate(visit_id = visit_id, .before = everything()) %>%
     dplyr::mutate(subj_id = subj_id, .before = everything())
@@ -117,11 +117,18 @@ for (i in 1:nrow(fpaths_df_1stvisit)){
 }
 
 out_df <- do.call(rbind, out_dt_list)
+out_df <- out_df %>% 
+  dplyr::select(file_id, subj_id, visit_id,
+                HEADER_TIME_STAMP, wear_flag, 
+                AC, MIMS, MAD, ENMO, AI) 
+
 dim(out_df)
-# Jan 15, 2021: 
-# [1] 6225000       9
+# Jan 15, 2021: 6225000       9
+# Jan 18, 2021: 6225000       10
+
+table(out_df$wear_flag)
 
 
 # save as data frame
-fout_path <- paste0(here::here(), "/data_processed/2021-01-15-measures_masterfile.rds")
+fout_path <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile.rds")
 saveRDS(out_df, fout_path)

@@ -29,7 +29,7 @@ get_vals_summary <- function(vec){
 }
 
 # read minute-level measures master file
-dat_fpath <- paste0(here::here(), "/data_processed/2021-01-15-measures_masterfile.rds")
+dat_fpath <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile.rds")
 dat <- readRDS(dat_fpath)
 
 val_summary_AC   <- get_vals_summary(dat$AC)
@@ -51,7 +51,7 @@ d_val_summary_all <- rbind(
 
 # save as data frame
 # fout_path <- paste0(here::here(), "/results/2021-01-13-measures_vals_summary_population.rds")
-fout_path <- paste0(here::here(), "/results/2021-01-15-measures_vals_summary_population.rds")
+fout_path <- paste0(here::here(), "/results/2021-01-18-measures_vals_summary_population.rds")
 saveRDS(d_val_summary_all, fout_path)
 
 
