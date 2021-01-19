@@ -3,10 +3,10 @@
 #' - /code/data_preprocesing/prepare_measures_masterfile.R
 #' 
 #' input data file: 
-#' - /data_processed/2021-01-15-measures_masterfile.rds
+#' - /data_processed/2021-01-18-measures_masterfile.rds
 #' 
 #' out file: 
-#' - /results/2021-01-15-measures_vals_summary_population.rds
+#' - /results/2021-01-18-measures_vals_summary_population.rds
 #' 
 #' use: 
 #' cd /dcl01/smart/data/activity/blsa_mims
@@ -31,6 +31,8 @@ get_vals_summary <- function(vec){
 # read minute-level measures master file
 dat_fpath <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile.rds")
 dat <- readRDS(dat_fpath)
+dim(dat)
+# Jan 18, 2021: 5791560      10
 
 val_summary_AC   <- get_vals_summary(dat$AC)
 val_summary_MIMS <- get_vals_summary(dat$MIMS)

@@ -4,6 +4,7 @@
 .Ruserdata
 .DS_Store
 compare/
+data_processed/
 csv/
 csv_old/
 csv_wear_flag/
@@ -20,3 +21,6 @@ qc/
 code/CSV.*
 resampled/
 notes_MK/
+
+/code/data_analysis/2021-01-18-get_measures_mapping/2021-01-18-get_measures_mapping_files/
+/code/data_analysis/2021-01-18-get_measures_mapping/2021-01-18-get_measures_mapping_cache/

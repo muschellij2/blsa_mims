@@ -17,7 +17,8 @@ library(lubridate)
 
 fpath_tmp <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile_winsorized.rds")
 dat <- readRDS(fpath_tmp)
-str(dat)
+dim(dat)
+# Jan 18, 2021: 5791560      10
 
 # function to correlation matrix' upper triangle vector from data frame
 dat_to_corr_uppertri <- function(dat, corr_col_names = c("AC", "MIMS", "MAD", "ENMO", "AI")){
