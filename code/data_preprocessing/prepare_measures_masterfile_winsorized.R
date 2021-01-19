@@ -13,10 +13,10 @@
 #' and after data winsorization. 
 #' 
 #' input files: 
-#' - /data_processed/2021-01-15-measures_masterfile.rds
+#' - /data_processed/2021-01-19-measures_masterfile.rds
 #' 
 #' out file: 
-#' - /data_processed/2021-01-18-measures_masterfile_winsorized.rds
+#' - /data_processed/2021-01-19-measures_masterfile_winsorized.rds
 #' 
 #' Notes: 
 #' - use: cd /dcl01/smart/data/activity/blsa_mims
@@ -31,12 +31,14 @@ library(here)
 options(scipen=999)
 
 # read minute-level measures master file
-dat_fpath <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile.rds")
+dat_fpath <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile.rds")
 dat <- readRDS(dat_fpath) 
-str(dat)
+dim(dat)
+# Jan 18, 2021: 5791560      10
+# Jan 19, 2021: 6147240      10
 
 # read values with population-level measures that will be used for winsorizing 
-fpath_tmp <- paste0(here::here(), "/results/2021-01-18-measures_vals_summary_population.rds")
+fpath_tmp <- paste0(here::here(), "/results/2021-01-19-measures_vals_summary_population.rds")
 wn_df <- readRDS(fpath_tmp)
 str(wn_df)
 wn_vec <- wn_df[, "val_qt_0.99999"]
@@ -67,5 +69,5 @@ summary(dat_wn$ENMO)
 summary(dat_wn$AI)
 
 # save as data frame
-fpath_out <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile_winsorized.rds")
+fpath_out <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile_winsorized.rds")
 saveRDS(dat_wn, fpath_out)
