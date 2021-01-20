@@ -24,7 +24,10 @@ length(unique(dat_acc$file_id))
 length(unique(dat_acc$subj_id))
 
 
-## fit and predict -------------------------------------------------------------
+##  ----------------------------------------------------------------------------
+##  ----------------------------------------------------------------------------
+##  ----------------------------------------------------------------------------
+## GAM fit and predict 
 
 # MIMS ~ AC
 mod <- gam(MIMS ~ s(AC, bs = "cr"), data = dat_acc)
@@ -67,7 +70,8 @@ theme_set(theme_ggpr())
 
 # predefine range of x-axis corresponding to AC 
 # x_lim <- c(0, round(max(dat_acc$AC)))
-x_lim <- c(0, 30000)
+# x_lim <- c(0, 30000)
+x_lim <- c(0, 20000)
 
 # MIMS ~ AC
 y_lim <- c(0, mod_MIMS_AC_df %>% filter(AC == x_lim[2]) %>% pull(MIMS))
@@ -113,10 +117,11 @@ plt_AI_AC
 # combined plot
 plt_list <- list(plt_MIMS_AC, plt_ENMO_AC, plt_MAD_AC, plt_AI_AC)
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v")
+plt
 
-plt_fpath <- paste0(here::here(), "/results_figures/measures_mapping.png")
-save_plot(filename = plt_fpath, plot = plt, base_width = 10, base_height = 10)
-
+plt_fpath <- paste0(here::here(), "/results_figures/measures_mapping_GAM_fit.png")
+save_plot(filename = plt_fpath, plot = plt, base_width = 10, base_height = 8)
+rm(plt)
 
 ## generate table with selected values -----------------------------------------
 
@@ -131,6 +136,183 @@ tbl_out <- data.frame(
 ) %>% round(3)
 
 View(tbl_out)
+
+
+
+##  ----------------------------------------------------------------------------
+##  ----------------------------------------------------------------------------
+##  ----------------------------------------------------------------------------
+## Sensitivity analysis of effect of measure threshold choice in estimating if 
+##minute-level AC equals 0
+
+sum(dat_acc$AC == 0)
+mean(dat_acc$AC == 0)
+
+summary(dat_acc$MIMS)
+summary(dat_acc$MAD)
+summary(dat_acc$ENMO)
+summary(dat_acc$AI)
+
+dat_acc_AC0 <- dat_acc %>% filter(AC == 0)
+
+summary(dat_acc_AC0$MIMS)
+summary(dat_acc_AC0$MAD)
+summary(dat_acc_AC0$ENMO)
+summary(dat_acc_AC0$AI)
+
+measure_gird_max <- c(7.5, 0.1, 0.025, 2.2)
+names(measure_gird_max) <- c("MIMS", "ENMO", "MAD", "AI")
+
+# function to compute sensitivity, specificity, accuracy 
+get_performance_estimating_AC_is0 <- function(AC_vec, S2_vec, S2_grid, S2_label){
+  # define vector of 0/1 where 0: (AC_vec != 0), 1: (AC_vec == 0)
+  # i.e. the event (AC == 0) is a "success"
+  AC_is0  <- (AC_vec == 0) * 1
+  AC_which_is0 <- which(AC_vec == 0)
+  AC_which_isnot0 <- which(!(AC_vec == 0))
+  S2_l <- length(S2_grid)
+  out_df <- data.frame(measure_grid = S2_grid)
+  out_df$out_sens = out_df$out_spec = out_df$out_accr = NA
+  for (i in 1:S2_l){
+    print(i)
+    AC_est_is0   <- (S2_vec <= S2_grid[i]) * 1
+    out_df$out_sens[i] <- mean(AC_est_is0[AC_which_is0])
+    out_df$out_spec[i] <- 1 - mean(AC_est_is0[AC_which_isnot0])
+    out_df$out_accr[i] <- mean(AC_is0 == AC_est_is0)
+  }
+  out_df$measure_name <- S2_label
+  return(out_df)
+}
+
+length_out <- 100
+perf_df_MIMS <- get_performance_estimating_AC_is0(
+  AC_vec = dat_acc$AC, 
+  S2_vec = dat_acc$MIMS, 
+  S2_grid = seq(0, measure_gird_max["MIMS"], length.out = length_out), 
+  S2_label = "MIMS"
+  )
+perf_df_ENMO <- get_performance_estimating_AC_is0(
+  AC_vec = dat_acc$AC, 
+  S2_vec = dat_acc$ENMO, 
+  S2_grid = seq(0, measure_gird_max["ENMO"], length.out = length_out), 
+  S2_label = "ENMO"
+)
+perf_df_MAD <- get_performance_estimating_AC_is0(
+  AC_vec = dat_acc$AC, 
+  S2_vec = dat_acc$MAD, 
+  S2_grid = seq(0, measure_gird_max["MAD"], length.out = length_out), 
+  S2_label = "MAD"
+)
+perf_df_AI <- get_performance_estimating_AC_is0(
+  AC_vec = dat_acc$AC, 
+  S2_vec = dat_acc$AI, 
+  S2_grid = seq(0, measure_gird_max["AI"], length.out = length_out), 
+  S2_label = "AI"
+)
+perf_df_comb <- rbind(
+  perf_df_MIMS,
+  perf_df_ENMO,
+  perf_df_MAD,
+  perf_df_AI
+)
+# fpath_out <- paste0(here::here(), "/results/2021-01-20-performance_estimating_AC_is0.rds")
+# saveRDS(object = perf_df_comb, file = fpath_out)
+
+# read precomputed results 
+fpath_out <- paste0(here::here(), "/results/2021-01-20-performance_estimating_AC_is0.rds")
+perf_df_comb <- readRDS(fpath_out)
+perf_df_comb_long <- perf_df_comb %>% 
+  pivot_longer(cols = c(out_accr,  out_spec, out_sens)) %>%
+  mutate(name = factor(name, 
+                       levels = c("out_accr", "out_sens", "out_spec"),
+                       labels = c("accuracy", "sensitivity", "specificity")))
+
+# MIMS 
+plt_df <- perf_df_comb_long %>% filter(measure_name == "MIMS")
+plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>% 
+  filter(accuracy == max(accuracy)) %>% 
+  filter(sensitivity == max(sensitivity)) %>% 
+  filter(specificity == max(specificity)) %>% 
+  filter(measure_grid == min(measure_grid)) %>% 
+  pull(measure_grid)
+plt_MIMS <- 
+  ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
+  geom_vline(xintercept = plt_df_whichmax, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_line() + 
+  scale_y_continuous(limits = c(0, 1)) + 
+  theme(legend.position = "none") + 
+  labs(x = "MIMS threshold") + 
+  scale_color_futurama()
+plt_MIMS
+
+# ENMO 
+plt_df <- perf_df_comb_long %>% filter(measure_name == "ENMO")
+plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>% 
+  filter(accuracy == max(accuracy)) %>% 
+  filter(sensitivity == max(sensitivity)) %>% 
+  filter(specificity == max(specificity)) %>% 
+  filter(measure_grid == min(measure_grid)) %>% 
+  pull(measure_grid)
+plt_ENMO <- 
+  ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
+  geom_vline(xintercept = plt_df_whichmax, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_line() + 
+  scale_y_continuous(limits = c(0, 1)) + 
+  theme(legend.position = "none") + 
+  labs(x = "ENMO threshold") + 
+  scale_color_futurama()
+plt_ENMO
+
+# MAD 
+plt_df <- perf_df_comb_long %>% filter(measure_name == "MAD")
+plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>% 
+  filter(accuracy == max(accuracy)) %>% 
+  filter(sensitivity == max(sensitivity)) %>% 
+  filter(specificity == max(specificity)) %>% 
+  filter(measure_grid == min(measure_grid)) %>% 
+  pull(measure_grid)
+plt_MAD <- 
+  ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
+  geom_vline(xintercept = plt_df_whichmax, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_line() + 
+  scale_y_continuous(limits = c(0, 1)) + 
+  theme(legend.position = "none") + 
+  labs(x = "MAD threshold") + 
+  scale_color_futurama()
+plt_MAD
+
+# AI 
+plt_df <- perf_df_comb_long %>% filter(measure_name == "AI")
+plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>% 
+  filter(accuracy == max(accuracy)) %>% 
+  filter(sensitivity == max(sensitivity)) %>% 
+  filter(specificity == max(specificity)) %>% 
+  filter(measure_grid == min(measure_grid)) %>% 
+  pull(measure_grid)
+plt_AI <- 
+  ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
+  geom_line() + 
+  geom_vline(xintercept = plt_df_whichmax, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  scale_y_continuous(limits = c(0, 1)) + 
+  theme(
+    legend.position = c(0.8, 0.22),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 10)
+  ) + 
+  labs(x = "AI threshold") + 
+  scale_color_futurama() + 
+  labs(color = "Estimating AC == 0")
+plt_AI
+
+
+# combined plot
+plt_list <- list(plt_MIMS, plt_ENMO, plt_MAD, plt_AI)
+plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v")
+plt
+
+plt_fpath <- paste0(here::here(), "/results_figures/measures_mapping_performance_estimating_AC_is0.png")
+save_plot(filename = plt_fpath, plot = plt, base_width = 10, base_height = 8)
+
 
 
 
