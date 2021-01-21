@@ -1,5 +1,5 @@
 
-#' Script to generate mapping between minute-level activity measure
+#' Script to generate mapping between minute-level activity measures
 #' 
 #' Note: 
 #' - To get needed files available locally, use
@@ -123,20 +123,6 @@ plt_fpath <- paste0(here::here(), "/results_figures/measures_mapping_GAM_fit.png
 save_plot(filename = plt_fpath, plot = plt, base_width = 10, base_height = 8)
 rm(plt)
 
-## generate table with selected values -----------------------------------------
-
-AC_vec <- c(0, 100, 1853, 1952, 2690)
-
-tbl_out <- data.frame(
-  AC = AC_vec,
-  MIMS = mod_MIMS_AC_df %>% filter(AC %in% AC_vec) %>% pull(MIMS),
-  ENMO = mod_ENMO_AC_df %>% filter(AC %in% AC_vec) %>% pull(ENMO),
-  MAD  = mod_MAD_AC_df %>% filter(AC %in% AC_vec) %>% pull(MAD),
-  AI = mod_AI_AC_df %>% filter(AC %in% AC_vec) %>% pull(AI)
-) %>% round(3)
-
-View(tbl_out)
-
 
 
 ##  ----------------------------------------------------------------------------
@@ -184,7 +170,7 @@ get_performance_estimating_AC_is0 <- function(AC_vec, S2_vec, S2_grid, S2_label)
   return(out_df)
 }
 
-length_out <- 100
+length_out <- 1000
 perf_df_MIMS <- get_performance_estimating_AC_is0(
   AC_vec = dat_acc$AC, 
   S2_vec = dat_acc$MIMS, 
@@ -229,7 +215,7 @@ perf_df_comb_long <- perf_df_comb %>%
 
 # MIMS 
 plt_df <- perf_df_comb_long %>% filter(measure_name == "MIMS")
-plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>% 
+plt_df_whichmax_MIMS <- plt_df %>% pivot_wider(names_from = "name") %>% 
   filter(accuracy == max(accuracy)) %>% 
   filter(sensitivity == max(sensitivity)) %>% 
   filter(specificity == max(specificity)) %>% 
@@ -237,7 +223,7 @@ plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>%
   pull(measure_grid)
 plt_MIMS <- 
   ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
-  geom_vline(xintercept = plt_df_whichmax, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_vline(xintercept = plt_df_whichmax_MIMS, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
   geom_line() + 
   scale_y_continuous(limits = c(0, 1)) + 
   theme(legend.position = "none") + 
@@ -247,7 +233,7 @@ plt_MIMS
 
 # ENMO 
 plt_df <- perf_df_comb_long %>% filter(measure_name == "ENMO")
-plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>% 
+plt_df_whichmax_ENMO <- plt_df %>% pivot_wider(names_from = "name") %>% 
   filter(accuracy == max(accuracy)) %>% 
   filter(sensitivity == max(sensitivity)) %>% 
   filter(specificity == max(specificity)) %>% 
@@ -255,7 +241,7 @@ plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>%
   pull(measure_grid)
 plt_ENMO <- 
   ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
-  geom_vline(xintercept = plt_df_whichmax, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_vline(xintercept = plt_df_whichmax_ENMO, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
   geom_line() + 
   scale_y_continuous(limits = c(0, 1)) + 
   theme(legend.position = "none") + 
@@ -265,7 +251,7 @@ plt_ENMO
 
 # MAD 
 plt_df <- perf_df_comb_long %>% filter(measure_name == "MAD")
-plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>% 
+plt_df_whichmax_MAD <- plt_df %>% pivot_wider(names_from = "name") %>% 
   filter(accuracy == max(accuracy)) %>% 
   filter(sensitivity == max(sensitivity)) %>% 
   filter(specificity == max(specificity)) %>% 
@@ -273,7 +259,7 @@ plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>%
   pull(measure_grid)
 plt_MAD <- 
   ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
-  geom_vline(xintercept = plt_df_whichmax, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_vline(xintercept = plt_df_whichmax_MAD, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
   geom_line() + 
   scale_y_continuous(limits = c(0, 1)) + 
   theme(legend.position = "none") + 
@@ -283,7 +269,7 @@ plt_MAD
 
 # AI 
 plt_df <- perf_df_comb_long %>% filter(measure_name == "AI")
-plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>% 
+plt_df_whichmax_AI <- plt_df %>% pivot_wider(names_from = "name") %>% 
   filter(accuracy == max(accuracy)) %>% 
   filter(sensitivity == max(sensitivity)) %>% 
   filter(specificity == max(specificity)) %>% 
@@ -292,7 +278,7 @@ plt_df_whichmax <- plt_df %>% pivot_wider(names_from = "name") %>%
 plt_AI <- 
   ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
   geom_line() + 
-  geom_vline(xintercept = plt_df_whichmax, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_vline(xintercept = plt_df_whichmax_AI, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
   scale_y_continuous(limits = c(0, 1)) + 
   theme(
     legend.position = c(0.8, 0.22),
@@ -315,4 +301,27 @@ save_plot(filename = plt_fpath, plot = plt, base_width = 10, base_height = 8)
 
 
 
+##  ----------------------------------------------------------------------------
+##  ----------------------------------------------------------------------------
+##  ----------------------------------------------------------------------------
+#' Combine GAM and above AC == 0 estimation
 
+AC_is0_thresh <- c(
+  plt_df_whichmax_MIMS,
+  plt_df_whichmax_ENMO,
+  plt_df_whichmax_MAD,
+  plt_df_whichmax_AI
+)
+AC_is0_thresh
+
+AC_vec <- c(0, 1, 2, 10, 100, 1852, 1853, 1854, 1952, 2690)
+
+tbl_out <- data.frame(
+  AC = AC_vec,
+  MIMS = mod_MIMS_AC_df %>% filter(AC %in% AC_vec) %>% pull(MIMS),
+  ENMO = mod_ENMO_AC_df %>% filter(AC %in% AC_vec) %>% pull(ENMO),
+  MAD  = mod_MAD_AC_df %>% filter(AC %in% AC_vec) %>% pull(MAD),
+  AI = mod_AI_AC_df %>% filter(AC %in% AC_vec) %>% pull(AI)
+) 
+
+tbl_out
