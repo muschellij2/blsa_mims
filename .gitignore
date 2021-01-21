@@ -11,6 +11,7 @@ csv_wear_flag/
 data_processed/
 mims/
 results/
+results_figures/
 covariates/
 open_measures/
 open_source_measures/
