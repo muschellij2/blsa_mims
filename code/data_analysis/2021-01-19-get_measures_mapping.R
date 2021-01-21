@@ -5,6 +5,8 @@
 #' - To get needed files available locally, use
 #'   get /dcl01/smart/data/activity/blsa_mims/data_processed/2021-01-19-measures_masterfile_winsorized.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/data_processed/2021-01-19-measures_masterfile_winsorized.rds
 #'   
+#' - We use winsorized data to make the mapping 
+#'   
 #' - Reference: 
 #'   https://johnmuschelli.com/upper_limb_gt3x_prosthesis/thresholds.html
    
@@ -61,7 +63,7 @@ dim(dat_acc_sub)
 # https://rpubs.com/mclaire19/ggplot2-custom-themes
 theme_ggpr <- function(){ 
   font <- "Arial"  
-  theme_bw(base_size = 14) %+replace%    
+  theme_bw(base_size = 16) %+replace%    
     theme(panel.grid.major = element_line(size = 0.3),  
           panel.grid.minor = element_blank()    
     )
@@ -223,7 +225,7 @@ plt_df_whichmax_MIMS <- plt_df %>% pivot_wider(names_from = "name") %>%
   pull(measure_grid)
 plt_MIMS <- 
   ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
-  geom_vline(xintercept = plt_df_whichmax_MIMS, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_vline(xintercept = plt_df_whichmax_MIMS, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.99) + 
   geom_line() + 
   scale_y_continuous(limits = c(0, 1)) + 
   theme(legend.position = "none") + 
@@ -241,7 +243,7 @@ plt_df_whichmax_ENMO <- plt_df %>% pivot_wider(names_from = "name") %>%
   pull(measure_grid)
 plt_ENMO <- 
   ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
-  geom_vline(xintercept = plt_df_whichmax_ENMO, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_vline(xintercept = plt_df_whichmax_ENMO, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.99) + 
   geom_line() + 
   scale_y_continuous(limits = c(0, 1)) + 
   theme(legend.position = "none") + 
@@ -259,7 +261,7 @@ plt_df_whichmax_MAD <- plt_df %>% pivot_wider(names_from = "name") %>%
   pull(measure_grid)
 plt_MAD <- 
   ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
-  geom_vline(xintercept = plt_df_whichmax_MAD, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_vline(xintercept = plt_df_whichmax_MAD, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.99) + 
   geom_line() + 
   scale_y_continuous(limits = c(0, 1)) + 
   theme(legend.position = "none") + 
@@ -278,12 +280,12 @@ plt_df_whichmax_AI <- plt_df %>% pivot_wider(names_from = "name") %>%
 plt_AI <- 
   ggplot(plt_df, aes(x = measure_grid, y = value, color = name)) + 
   geom_line() + 
-  geom_vline(xintercept = plt_df_whichmax_AI, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.4) + 
+  geom_vline(xintercept = plt_df_whichmax_AI, color = pal_futurama()(3)[1], linetype = 2, alpha = 0.99) + 
   scale_y_continuous(limits = c(0, 1)) + 
   theme(
-    legend.position = c(0.8, 0.22),
-    legend.title = element_text(size = 10),
-    legend.text = element_text(size = 10)
+    legend.position = c(0.72, 0.24),
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 12)
   ) + 
   labs(x = "AI threshold") + 
   scale_color_futurama() + 
@@ -307,11 +309,13 @@ save_plot(filename = plt_fpath, plot = plt, base_width = 10, base_height = 8)
 #' Combine GAM and above AC == 0 estimation
 
 AC_is0_thresh <- c(
+  0,
   plt_df_whichmax_MIMS,
   plt_df_whichmax_ENMO,
   plt_df_whichmax_MAD,
   plt_df_whichmax_AI
 )
+names(AC_is0_thresh) <- c("AC", "MIMS", "ENMO", "MAD", "AI")
 AC_is0_thresh
 
 AC_vec <- c(0, 1, 2, 10, 100, 1852, 1853, 1854, 1952, 2690)
