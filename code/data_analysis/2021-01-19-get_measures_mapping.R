@@ -23,6 +23,7 @@ dat_acc <- readRDS(dat_acc_fpath)
 names(dat_acc)
 dim(dat_acc)
 length(unique(dat_acc$file_id))
+# Jan 21, 2021: 721
 length(unique(dat_acc$subj_id))
 
 

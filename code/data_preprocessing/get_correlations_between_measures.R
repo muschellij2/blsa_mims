@@ -22,7 +22,7 @@ dim(dat)
 # Jan 19, 2021: 6147240      10
 
 # function to correlation matrix' upper triangle vector from data frame
-dat_to_corr_uppertri <- function(dat, corr_col_names = c("AC", "MIMS", "MAD", "ENMO", "AI")){
+dat_to_corr_uppertri <- function(dat, corr_col_names = c("AC", "MIMS", "ENMO", "MAD", "AI")){
   m <- cor(dat[, corr_col_names])
   out <- data.frame(S1=rownames(m)[row(m)[upper.tri(m)]], 
                     S2=colnames(m)[col(m)[upper.tri(m)]], 
