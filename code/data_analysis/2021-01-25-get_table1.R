@@ -5,247 +5,290 @@
 #' 
 #' Input: 
 #' > /data_processed/2021-01-18-measures_masterfile.rds
-#' 
-#' Notes: 
-#' - use: cd /dcl01/smart/data/activity/blsa_mims
-
-# get /dcl01/smart/data/activity/blsa_mims/covariates/mastervisit.rdata /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/covariates/mastervisit.rdata
-# get /dcl01/smart/data/activity/blsa_mims/covariates/mastervisit.sas7bdat /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/covariates/mastervisit.sas7bdat
-
-# get /dcl01/smart/data/activity/blsa_mims/covariates/masterdemog_no\ dob.rdata  /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/covariates/masterdemog_no\ dob.rdata 
-
-# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/covariates/2021-01-19-mastervisit.rdata /dcl01/smart/data/activity/blsa_mims/covariates/2021-01-19-mastervisit.rdata
-# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/covariates/2021-01-19-mastervisit.sas7bdat /dcl01/smart/data/activity/blsa_mims/covariates/2021-01-19-mastervisit.sas7bdat
-
-# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/covariates/2021-01-19-masterdemog.rdata /dcl01/smart/data/activity/blsa_mims/covariates/2021-01-19-masterdemog.rdata
-# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/covariates/2021-01-19-masterdemog.dta /dcl01/smart/data/activity/blsa_mims/covariates/2021-01-19-masterdemog.dta
-
-# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/covariates/2021-01-19-blsa_interview_mdhx_teleform.rdata /dcl01/smart/data/activity/blsa_mims/covariates/2021-01-19-blsa_interview_mdhx_teleform.rdata
-# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/covariates/2021-01-19-blsa_interview_mdhx_teleform.dta /dcl01/smart/data/activity/blsa_mims/covariates/2021-01-19-blsa_interview_mdhx_teleform.dta
-
-# get /dcl01/smart/data/activity/blsa_mims/data_processed/2021-01-18-measures_masterfile.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/data_processed/2021-01-18-measures_masterfile.rds
-
 
 rm(list = ls())
 library(tidyverse)
-library(haven)
-library(utils)
-
-# ------------------------------------------------------------------------------
-# create meta files data 
-
-# mastervisit
-mastervisit_fpath <- paste0(here::here(), "/covariates/2021-01-19-mastervisit.sas7bdat")
-mastervisit <- sas7bdat::read.sas7bdat(mastervisit_fpath)
-# pull column info attribute 
-mastervisit_colinfo <- attr(mastervisit, "column.info")
-names(mastervisit_colinfo[[1]])
-# define mastervisit_meta data 
-mastervisit_meta <- data.frame(
-  var_name = sapply(mastervisit_colinfo, function(ll) ll$name),
-  var_label = sapply(mastervisit_colinfo, function(ll) ll$label)
-)
-# save mastervisit_meta data to file
-utils::capture.output(
-  mastervisit_meta,
-  file = paste0(here::here(), "/covariates/mastervisit_meta.txt")
-)
-rm(mastervisit_fpath, mastervisit, mastervisit_colinfo, mastervisit_meta)
-
-
-# interview
-# read interview 
-interview_fpath <- paste0(here::here(), "/covariates/2021-01-19-blsa_interview_mdhx_teleform.dta")
-interview <- haven::read_dta(interview_fpath)
-# list attributes 
-attributes(interview[[1]])
-# produce the meta info data 
-interview_meta <- data.frame(
-  var_name = names(interview),
-  var_label = unlist(lapply(interview, function(ll){val <- attr(ll, "label"); ifelse(is.null(val), NA, val)}))
-)
-rownames(interview_meta) <- NULL
-# save the meta info data 
-utils::capture.output(
-  interview_meta,
-  file = paste0(here::here(), "/covariates/interview_meta.txt")
-)
-
-
-
-
-
 
 # ------------------------------------------------------------------------------
 # read data 
 
-# read accelerometry measures master file
-datacc_fpath <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile.rds")
-datacc <- readRDS(datacc_fpath)
-datacc_id <- datacc %>%
-  select(file_id, subj_id, visit_id) %>%
-  distinct() %>% 
-  as.data.frame() %>% 
-  mutate(entry_accdata = 1) 
-str(datacc_id)
+# measures_masterfile -- file with minute-level PA measures 
+measures_masterfile_fpath <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile_winsorized.rds")
+measures_masterfile <- readRDS(measures_masterfile_fpath)
+dim(measures_masterfile)
+# [1] 6147240      10
+measures_masterfile %>% select(subj_id, visit_id) %>% distinct() %>% nrow()
+# [1] 721
+length(unique(measures_masterfile$subj_id))
+# [1] 721
 
-# read mastervisit
+# mastervisit -- visit-specific participant's: comorbidities, age, BMI from mastervisit.
 mastervisit_fpath <- paste0(here::here(), "/covariates/2021-01-19-mastervisit.rdata")
 mastervisit <- get(load(mastervisit_fpath, ex <- new.env()), envir = ex) %>%
   rename(idno = IDNo, visit = Visit, dov = DOV)
-mastervisit_id <- 
-  mastervisit %>%
-  select(idno, visit, dov) %>% 
-  mutate(entry_mastervisit = 1) 
 dim(mastervisit)
 # [1] 25571   113
-dim(mastervisit_id)
-# [1] 25571     4
 
-# read masterdemog 
+# masterdemog -- participant's: gender, race, and years of education
 masterdemog_fpath <- paste0(here::here(), "/covariates/2021-01-19-masterdemog.rdata")
 masterdemog <- get(load(masterdemog_fpath, ex <- new.env()), envir = ex) 
-masterdemog_id <- 
-  masterdemog %>%
-  select(idno) %>% 
-  mutate(entry_masterdemog = 1) 
 dim(masterdemog)
 # [1] 3445   15
-dim(masterdemog_id)
-# [1] 3445   2
 
-# read interview data 
-# read interview 
-interview_fpath <- paste0(here::here(), "/covariates/2021-01-19-blsa_interview_mdhx_teleform.dta")
-interview <- haven::read_dta(interview_fpath)
-# list attributes 
-attributes(interview[[1]])
-# produce the meta info data 
-interview_meta <- data.frame(
-  var_name = names(interview),
-  var_label = unlist(lapply(interview, function(ll){val <- attr(ll, "label"); ifelse(is.null(val), NA, val)}))
-)
-rownames(interview_meta) <- NULL
-# produce the meta info data 
-utils::capture.output(
-  interview_meta,
-  file = paste0(here::here(), "/covariates/interview_meta.txt")
-)
-
-
-
-
-# read interview 
+# interview -- visit-specific participant's: emplyment 
 interview_fpath <- paste0(here::here(), "/covariates/2021-01-19-blsa_interview_mdhx_teleform.rdata")
-interview <- get(load(interview_fpath, ex <- new.env()), envir = ex) 
-interview_id <- 
-  interview  %>%
-  select(idno, visit) %>% 
-  mutate(entry_interview = 1) 
+interview <- get(load(interview_fpath, ex <- new.env()), envir = ex)
+dim(interview)
+# [1] 7197  760
 
-# combine unique pairs (subj_id, visit_id) between acc data measures_masterfile and 
-# (a) mastervisit,
-# (b) masterdemog
-# NOTE: the match should be the case given how the measures_masterfile was constructed;
-# this is just to double-check
-dat_comb <- 
-  datacc_id %>%
-  left_join(mastervisit_id, by = c("subj_id" = "idno", "visit_id" = "visit")) %>%
-  left_join(masterdemog_id, by = c("subj_id" = "idno")) %>%
-  left_join(interview_id,   by = c("subj_id" = "idno", "visit_id" = "visit")) 
-  
-dim(datacc_id)
-dim(dat_comb)
-any(is.na(dat_comb$dov))
-any(is.na(dat_comb$entry_mastervisit))
-any(is.na(dat_comb$entry_masterdemog))
-any(is.na(dat_comb$entry_interview))
+
+# ------------------------------------------------------------------------------
+# generate subsets of these data 
+
+mastervisit_SUB <- 
+  measures_masterfile %>%
+  select(subj_id, visit_id) %>% 
+  distinct() %>%
+  left_join(mastervisit, by = c("subj_id" = "idno", visit_id = "visit")) 
+
+masterdemog_SUB <- 
+  measures_masterfile %>%
+  select(subj_id, visit_id) %>% 
+  distinct() %>%
+  left_join(masterdemog, by = c("subj_id" = "idno")) %>%
+  select(subj_id, BLSA_Race, gender, educ_years, educat, Educ_edited) %>%
+  as.data.frame()
+
+interview_SUB <- 
+  measures_masterfile %>%
+  select(subj_id, visit_id) %>% 
+  distinct() %>%
+  left_join(interview, by = c("subj_id" = "idno", visit_id = "visit")) %>%
+  rename(reported_race = DEMO09) 
 
 
 
 # ------------------------------------------------------------------------------
-# construct Table 1:
-# 
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# generate aggregates
 
-dat_comb_nan <- 
-  dat_acc_id %>%
-  left_join(mastervisit, by = c("subj_id" = "idno", "visit_id" = "visit")) %>% 
-  filter(is.na(mastervisit_entry)) %>%
-  select(file_id, subj_id, visit_id) %>%
-  mutate(file_id_date = as.Date(str_sub(file_id,-11,-2)), .after = "file_id") %>%
-  arrange(file_id_date) %>% 
-  as.data.frame()
+# objects to store the values
+table1_var  <- rep(NA, 100)
+table1_val1 <- rep(NA, 100)
+table1_val2 <- rep(NA, 100)
+table1_val3 <- rep(NA, 100)
+table1_val4 <- rep(NA, 100)
+table1_val5 <- rep(NA, 100)
 
-range(mastervisit$dov, na.rm = TRUE)
-# [1] "1958-02-06" "2019-06-25"
+# age 
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Age"
+table1_val1[i] <- mean(mastervisit_SUB$Age)
+table1_val2[i] <- sd(mastervisit_SUB$Age)
+table1_val3[i] <- median(mastervisit_SUB$Age)
+table1_val4[i] <- min(mastervisit_SUB$Age)
+table1_val5[i] <- max(mastervisit_SUB$Age)
 
-file_id_date_vec <- 
-  dat_comb_nan %>%
-  filter(subj_id != 7518) %>% 
-  pull(file_id_date) 
-range(file_id_date_vec)
-# [1] "2019-08-02" "2020-03-18"
+# weight
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Weight [kg]"
+table1_val1[i] <- mean(mastervisit_SUB$WtKg)
+table1_val2[i] <- sd(mastervisit_SUB$WtKg)
+table1_val3[i] <- median(mastervisit_SUB$WtKg)
+table1_val4[i] <- min(mastervisit_SUB$WtKg)
+table1_val5[i] <- max(mastervisit_SUB$WtKg)
 
-# check for whom I can pull data from previous visit 
-dat_comb_nan_test <- 
-  dat_comb_nan %>%
-  left_join(mastervisit, by = c("subj_id" = "idno")) %>%
-  mutate(visit = replace(visit, is.na(visit), -1)) %>%
-  group_by(file_id) %>% 
-  filter(abs(visit_id - visit) == min(abs(visit_id - visit))) %>% 
-  arrange(visit) %>%
-  as.data.frame()
-sum(dat_comb_nan_test$visit > 0)
-    
+# height
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Height [cm]"
+table1_val1[i] <- mean(mastervisit_SUB$HtCm)
+table1_val2[i] <- sd(mastervisit_SUB$HtCm)
+table1_val3[i] <- median(mastervisit_SUB$HtCm)
+table1_val4[i] <- min(mastervisit_SUB$HtCm)
+table1_val5[i] <- max(mastervisit_SUB$HtCm)
 
-# -----------------------------------------------------------------------------
+# BMI
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "BMI"
+table1_val1[i] <- mean(mastervisit_SUB$BMI)
+table1_val2[i] <- sd(mastervisit_SUB$BMI)
+table1_val3[i] <- median(mastervisit_SUB$BMI)
+table1_val4[i] <- min(mastervisit_SUB$BMI)
+table1_val5[i] <- max(mastervisit_SUB$BMI)
 
-# old mastervisit 
-mastervisit_fpath <- paste0(here::here(), "/covariates/mastervisit.rdata")
-mastervisit <- get(load(mastervisit_fpath, ex <- new.env()), envir = ex)
-dim(mastervisit)
-range(mastervisit$dov, na.rm = TRUE)
-
-# new mastervisit 
-mastervisit_fpath <- paste0(here::here(), "/covariates/2021-01-19-mastervisit.rdata")
-mastervisit2 <- get(load(mastervisit_fpath, ex <- new.env()), envir = ex)
-dim(mastervisit2)
-range(mastervisit2$DOV, na.rm = TRUE)
-
-# SAS
-mastervisit_fpath <- paste0(here::here(), "/covariates/2021-01-19-mastervisit.sas7bdat")
-mastervisit2b <- sas7bdat::read.sas7bdat(mastervisit_fpath)
-
-mastervisit2b_colinfo <- attr(mastervisit2b, "column.info")
-
-names(mastervisit2b_colinfo[[1]])
-mastervisit2b_meta <- data.frame(
-  var_name = sapply(mastervisit2b_colinfo, function(ll) ll$name),
-  var_label = sapply(mastervisit2b_colinfo, function(ll) ll$label)
-)
-
-utils::capture.output(
-  mastervisit2b_meta,
-  file = paste0(here::here(), "/covariates/mastervisit_meta.txt")
-)
 
 # -----------------------------------------------------------------------------
+# race 
 
-# old mastervisit 
-masterdemog_fpath <- paste0(here::here(), "/covariates/masterdemog_no dob.rdata")
-masterdemog <- get(load(masterdemog_fpath, ex <- new.env()), envir = ex)
-dim(masterdemog)
-names(masterdemog)
+# race mapping
+masterdemog %>%
+  select(racecd, BLSA_Race) %>%
+  filter(BLSA_Race != "NA") %>%
+  distinct() %>%
+  arrange(racecd) %>%
+  as.data.frame() 
+#    racecd                             BLSA_Race
+# 1       0 Other Asian or Other Pacific Islander
+# 2       1                                 White
+# 3       2                                 Black
+# 4       3      American Indian or Alaska Native
+# 5       4                               Chinese
+# 6       5                              Japanese
+# 7       6                              Hawaiian
+# 8       7                        Other NonWhite
+# 9       8                              Filipino
+# 10      9                      Not Classifiable
 
-masterdemog_meta <- data.frame(
-  var_name = names(masterdemog)
-)
-range(masterdemog$LastVisit_Date)
-# [1] "1958-02-06" "2019-06-25"
+denom_cnt <- length(unique(measures_masterfile$subj_id))
 
-utils::capture.output(
-  masterdemog_meta,
-  file = paste0(here::here(), "/covariates/masterdemog_meta.txt")
-)
+#' Make table with minimum value of "reported race" (reported_race_REPL)
+#' for each participant based on their ALL visits. 
+#' This value (if and only if unique across all non-NA race values for a participant) 
+#' is then used to replace missing race value in visit-specific race field. 
+interview_SUB_race0 <- interview %>% 
+  select(idno, reported_race = DEMO09) %>%
+  group_by(idno) %>%
+  summarise(reported_race_REPL = min(reported_race, na.rm = TRUE),
+            n_dist = n_distinct(reported_race, na.rm = TRUE)) %>%
+  mutate(reported_race_REPL = ifelse(n_dist != 1, NA, reported_race_REPL)) %>%
+  select(-n_dist)
+interview_SUB_race <- measures_masterfile %>%
+  select(subj_id, visit_id) %>% 
+  distinct() %>%
+  left_join(interview, by = c("subj_id" = "idno", visit_id = "visit")) %>%
+  select(subj_id, visit_id, reported_race = DEMO09) %>%
+  left_join(interview_SUB_race0, by = c("subj_id" = "idno")) %>%
+  mutate(reported_race_FINAL = ifelse(is.na(reported_race), reported_race_REPL, reported_race))
+
+# race
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: White"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 1, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 1, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Black"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 2, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 2, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Not Other"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL %in% c(0, 3:9), na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL %in% c(0, 3:9), na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Not reported"
+table1_val1[i] <- sum(is.na(interview_SUB_race$reported_race_FINAL))
+table1_val2[i] <- sum(is.na(interview_SUB_race$reported_race_FINAL))/denom_cnt
+
+
+# -----------------------------------------------------------------------------
+# self-rated health 
+
+table(mastervisit_SUB$SFHealth)
+
+# Self-reported good/very good/excellent health
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Self-reported health: good/very good/excellent"
+table1_val1[i] <- sum(mastervisit_SUB$SFHealth %in% 1:3, na.rm = TRUE)
+table1_val2[i] <- sum(mastervisit_SUB$SFHealth %in% 1:3, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Self-reported health: fair/poor"
+table1_val1[i] <- sum(mastervisit_SUB$SFHealth %in% 4:5, na.rm = TRUE)
+table1_val2[i] <- sum(mastervisit_SUB$SFHealth %in% 4:5, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Self-reported health: Not reported"
+table1_val1[i] <- sum(is.na(mastervisit_SUB$SFHealth))
+table1_val2[i] <- sum(is.na(mastervisit_SUB$SFHealth))/denom_cnt
+
+
+# -----------------------------------------------------------------------------
+# comorbidities
+
+# 59         SMDHX3                MEDH: To date summary - Doctor told heart attack
+# 60         SMDHX4                         MEDH: To date summary - Doctor told CHF
+# 61         SMDHX5                      MEDH: To date summary - Doctor told angina
+# 62         SMDHX6                  MEDH: To date summary - Doctor told bronchitis
+# 63         SMDHX7                      MEDH: To date summary - Doctor told asthma
+# 64         SMDHX8                   MEDH: To date summary - Doctor told cirrhosis
+# 65         SMDHX9                   MEDH: To date summary - Doctor told hepatitis
+# 66        SMDHX10                 MEDH: To date summary - Doctor told HIV or AIDS
+# 67        SMDHX11              MEDH: To date summary - Doctor told kidney disease
+# 68        SMDHX12                      MEDH: To date summary - Doctor told stroke
+# 69        SMDHX13                         MEDH: To date summary - Doctor told TIA
+# 70        SMDHX14       MEDH: To date summary - Doctor told peripheral neuropathy
+# 71        SMDHX15                  MEDH: To date summary - Ever told hypertensive
+# 72        SMDHX16                    MEDH: To date summary - Doctor told diabetes
+# 73        SMDHX17                  MEDH: To date summary - High blood cholesterol
+# 74        SMDHX18        MEDH: To date summary - Ever had any vascular procedures
+# 75        SMDHX19                      MEDH: To date summary - Doctor told cancer
+# 76        SMDHX20              MEDH: To date summary - Doctor told osteoarthritis
+# 77        SMDHX21             MEDH: To date summary - Doctor told spinal stenosis
+# 78        SMDHX22                  MEDH: To date summary - Ever told osteoporosis
+# 79        SMDHX23          MEDH: To date summary - Doctor told had tissue disease
+# 80        SMDHX24              MEDH: To date summary - Doctor told had Parkinsons
+# 81        SMDHX25                         MEDH: To date summary - Doctor told PAD
+# 82        SMDHX26                         MEDH: To date summary - Doctor told PVD
+# 83       SMDHX27A       MEDH: To date summary - Doctor told had cataract in 1 eye
+# 84       SMDHX27B  MEDH: To date summary - Doctor told had cataracts in both eyes
+# 85       SMDHX27F        MEDH: To date summary - Doctor told had cataract surgery
+# 86        SMDHX28                       MEDH: To date summary - Doctor told ulcer
+# 87        SMDHX29                  MEDH: To date summary - Doctor told depression
+
+
+# heart attack, CHF, angina (ischemic chest pain), vascular procedure, Peripheral artery disease
+# (MI/CHF/angina/vascular procedure/PAD)
+table(mastervisit_SUB$SMDHX3); sum(is.na(table(mastervisit_SUB$SMDHX3)))
+table(mastervisit_SUB$SMDHX4); sum(is.na(table(mastervisit_SUB$SMDHX4)))
+table(mastervisit_SUB$SMDHX5); sum(is.na(table(mastervisit_SUB$SMDHX5)))
+table(mastervisit_SUB$SMDHX18); sum(is.na(table(mastervisit_SUB$SMDHX18)))
+table(mastervisit_SUB$SMDHX25); sum(is.na(table(mastervisit_SUB$SMDHX25)))
+
+# hypertensive (Hyperlipidemia) 
+table(mastervisit_SUB$SMDHX15); sum(is.na(table(mastervisit_SUB$SMDHX15)))
+
+# High blood cholesterol
+table(mastervisit_SUB$SMDHX17); sum(is.na(table(mastervisit_SUB$SMDHX17)))
+
+# Stroke, TIA
+table(mastervisit_SUB$SMDHX12); sum(is.na(table(mastervisit_SUB$SMDHX12)))
+table(mastervisit_SUB$SMDHX13); sum(is.na(table(mastervisit_SUB$SMDHX13)))
+
+# bronchitis, asthma (Pulmonary disease)
+table(mastervisit_SUB$SMDHX6); sum(is.na(table(mastervisit_SUB$SMDHX6)))
+table(mastervisit_SUB$SMDHX7); sum(is.na(table(mastervisit_SUB$SMDHX7)))
+
+# Diabetes
+table(mastervisit_SUB$SMDHX16); sum(is.na(table(mastervisit_SUB$SMDHX16)))
+
+# Cancer
+table(mastervisit_SUB$SMDHX19); sum(is.na(table(mastervisit_SUB$SMDHX19)))
+
+# Osteoarthritis
+table(mastervisit_SUB$SMDHX20); sum(is.na(table(mastervisit_SUB$SMDHX20)))
+
+
+
+
+
+
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Self-reported health: good/very good/excellent"
+table1_val1[i] <- sum(mastervisit_SUB$SFHealth %in% 1:3, na.rm = TRUE)
+table1_val2[i] <- sum(mastervisit_SUB$SFHealth %in% 1:3, na.rm = TRUE)/denom_cnt
+
+
+
+
+
+
+
+
+
+
 
 

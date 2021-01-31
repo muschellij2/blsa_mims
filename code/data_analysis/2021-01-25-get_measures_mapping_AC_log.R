@@ -20,6 +20,9 @@ library(cowplot)
 # read minute-level measures data (winsorized)
 dat_acc_fpath <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile_winsorized.rds")
 dat_acc <- readRDS(dat_acc_fpath)
+# THIS ANALYSIS-SPECIFIC ONLY: replace AC with log(AC+1)
+dat_acc$AC <- log(dat_acc$AC + 1)
+
 names(dat_acc)
 dim(dat_acc)
 length(unique(dat_acc$file_id))
@@ -32,24 +35,26 @@ length(unique(dat_acc$subj_id))
 ##  ----------------------------------------------------------------------------
 ## GAM fit and predict 
 
+AC_seq <- seq(0, round(max(dat_acc$AC)), length.out = 20000)
+
 # MIMS ~ AC
 mod_MIMS_AC <- gam(MIMS ~ s(AC, bs = "cr"), data = dat_acc)
-mod_MIMS_AC_df      <- data.frame(AC = 0 : round(max(dat_acc$AC)))
+mod_MIMS_AC_df      <- data.frame(AC = AC_seq)
 mod_MIMS_AC_df$MIMS <- predict(mod_MIMS_AC, newdata = mod_MIMS_AC_df)
 
 # ENMO ~ AC
 mod_ENMO_AC <- gam(ENMO ~ s(AC, bs = "cr"), data = dat_acc)
-mod_ENMO_AC_df      <- data.frame(AC = 0 : round(max(dat_acc$AC)))
+mod_ENMO_AC_df      <- data.frame(AC = AC_seq)
 mod_ENMO_AC_df$ENMO <- predict(mod_ENMO_AC, newdata = mod_ENMO_AC_df)
 
 # MAD ~ AC 
 mod_MAD_AC <- gam(MAD ~ s(AC, bs = "cr"), data = dat_acc)
-mod_MAD_AC_df     <- data.frame(AC = 0 : round(max(dat_acc$AC)))
+mod_MAD_AC_df     <- data.frame(AC = AC_seq)
 mod_MAD_AC_df$MAD <- predict(mod_MAD_AC, newdata = mod_MAD_AC_df)
 
 # AI ~ AC 
 mod_AI_AC <- gam(AI ~ s(AC, bs = "cr"), data = dat_acc)
-mod_AI_AC_df    <- data.frame(AC = 0 : round(max(dat_acc$AC)))
+mod_AI_AC_df    <- data.frame(AC = AC_seq)
 mod_AI_AC_df$AI <- predict(mod_AI_AC, newdata = mod_AI_AC_df)
 
 
@@ -72,50 +77,50 @@ theme_ggpr <- function(){
 theme_set(theme_ggpr())
 
 # predefine range of x-axis corresponding to AC 
-x_lim <- c(0, 20000)
+x_lim <- c(NA, 10)
 
 # MIMS ~ AC
-y_lim <- c(0, mod_MIMS_AC_df %>% filter(AC == x_lim[2]) %>% pull(MIMS)); y_lim
-# [1]  0.00000 92.05009
+y_lim <- c(NA, mod_MIMS_AC_df %>% filter(AC == x_lim[2]) %>% pull(MIMS))
 plt_MIMS_AC <- 
   ggplot(dat_acc_sub, aes(x = AC, y = MIMS)) + 
   geom_point(alpha = 0.1, size = 0.5) + 
   geom_line(data = mod_MIMS_AC_df, aes(x = AC, y = MIMS), color = pal_ucscgb()(1)) + 
   scale_x_continuous(limits = x_lim) + 
-  scale_y_continuous(limits = y_lim) 
+  scale_y_continuous(limits = y_lim) + 
+  labs(x = "log(AC + 1)")
 plt_MIMS_AC
 
 # ENMO ~ AC
-y_lim <- c(0, mod_ENMO_AC_df %>% filter(AC == x_lim[2]) %>% pull(ENMO)); y_lim
-# [1] 0.0000000 0.5389027
+y_lim <- c(NA, mod_ENMO_AC_df %>% filter(AC == x_lim[2]) %>% pull(ENMO))
 plt_ENMO_AC <- 
   ggplot(dat_acc_sub, aes(x = AC, y = ENMO)) + 
   geom_point(alpha = 0.1, size = 0.5) + 
   geom_line(data = mod_ENMO_AC_df, aes(x = AC, y = ENMO), color = pal_ucscgb()(1)) + 
   scale_x_continuous(limits = x_lim) + 
-  scale_y_continuous(limits = y_lim) 
+  scale_y_continuous(limits = y_lim) + 
+  labs(x = "log(AC + 1)")
 plt_ENMO_AC
 
 # MAD ~ AC
-y_lim <- c(0, mod_MAD_AC_df %>% filter(AC == x_lim[2]) %>% pull(MAD)); y_lim
-# [1] 0.0000000 0.5909187
+y_lim <- c(NA, mod_MAD_AC_df %>% filter(AC == x_lim[2]) %>% pull(MAD))
 plt_MAD_AC <- 
   ggplot(dat_acc_sub, aes(x = AC, y = MAD)) + 
   geom_point(alpha = 0.1, size = 0.5) + 
   geom_line(data = mod_MAD_AC_df, aes(x = AC, y = MAD), color = pal_ucscgb()(1)) + 
   scale_x_continuous(limits = x_lim) + 
-  scale_y_continuous(limits = y_lim) 
+  scale_y_continuous(limits = y_lim) + 
+  labs(x = "log(AC + 1)")
 plt_MAD_AC
 
 # AI ~ AC
-y_lim <- c(0, mod_AI_AC_df %>% filter(AC == x_lim[2]) %>% pull(AI)); y_lim
-# [1]  0.00000 39.76357
+y_lim <- c(NA, mod_AI_AC_df %>% filter(AC == x_lim[2]) %>% pull(AI))
 plt_AI_AC <- 
   ggplot(dat_acc_sub, aes(x = AC, y = AI)) + 
   geom_point(alpha = 0.1, size = 0.5) + 
   geom_line(data = mod_AI_AC_df, aes(x = AC, y = AI), color = pal_ucscgb()(1)) + 
   scale_x_continuous(limits = x_lim) + 
-  scale_y_continuous(limits = y_lim) 
+  scale_y_continuous(limits = y_lim) + 
+  labs(x = "log(AC + 1)")
 plt_AI_AC
 
 
@@ -124,7 +129,7 @@ plt_list <- list(plt_MIMS_AC, plt_ENMO_AC, plt_MAD_AC, plt_AI_AC)
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v")
 plt
 
-plt_fpath <- paste0(here::here(), "/results_figures/measures_mapping_GAM_fit.png")
+plt_fpath <- paste0(here::here(), "/results_figures/measures_mapping_GAM_fit_AClog.png")
 save_plot(filename = plt_fpath, plot = plt, base_width = 10, base_height = 8)
 rm(plt)
 
@@ -206,11 +211,11 @@ perf_df_comb <- rbind(
   perf_df_MAD,
   perf_df_AI
 )
-# fpath_out <- paste0(here::here(), "/results/2021-01-20-performance_estimating_AC_is0.rds")
-# saveRDS(object = perf_df_comb, file = fpath_out)
+fpath_out <- paste0(here::here(), "/results/2021-01-20-performance_estimating_AC_is0_AClog.rds")
+saveRDS(object = perf_df_comb, file = fpath_out)
 
 # read precomputed results 
-fpath_out <- paste0(here::here(), "/results/2021-01-20-performance_estimating_AC_is0.rds")
+fpath_out <- paste0(here::here(), "/results/2021-01-20-performance_estimating_AC_is0_AClog.rds")
 perf_df_comb <- readRDS(fpath_out)
 perf_df_comb_long <- perf_df_comb %>% 
   pivot_longer(cols = c(out_accr,  out_spec, out_sens)) %>%
@@ -301,7 +306,7 @@ plt_list <- list(plt_MIMS, plt_ENMO, plt_MAD, plt_AI)
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v")
 plt
 
-plt_fpath <- paste0(here::here(), "/results_figures/measures_mapping_performance_estimating_AC_is0.png")
+plt_fpath <- paste0(here::here(), "/results_figures/measures_mapping_performance_estimating_AC_is0_AClog.png")
 save_plot(filename = plt_fpath, plot = plt, base_width = 10, base_height = 8)
 
 
