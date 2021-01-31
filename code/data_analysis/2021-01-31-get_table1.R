@@ -4,7 +4,11 @@
 #' the masterfile.
 #' 
 #' Input: 
-#' > /data_processed/2021-01-18-measures_masterfile.rds
+#' - /data_processed/2021-01-19-measures_masterfile.rds
+#' 
+#' Notes: 
+#' - This Table 1 is based on Table 1 from 
+#'   https://academic.oup.com/biomedgerontology/article/73/5/630/4168567?login=true
 
 rm(list = ls())
 library(tidyverse)
@@ -119,6 +123,37 @@ table1_val5[i] <- max(mastervisit_SUB$BMI)
 
 
 # -----------------------------------------------------------------------------
+# accelerometry wear
+
+mm_agg <- 
+  measures_masterfile %>% 
+  mutate(HEADER_TIME_STAMP_date = as.Date(HEADER_TIME_STAMP)) %>%
+  group_by(subj_id) %>%
+  summarise(validdays_cnt = n_distinct(HEADER_TIME_STAMP_date),
+            wearflag_sum = sum(wear_flag)) %>%
+  mutate(wearminutes_perday = wearflag_sum / validdays_cnt) %>%
+  as.data.frame()
+
+# accelerometry wear: valid days
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Accelerometry wear: valid days"
+table1_val1[i] <- mean(mm_agg$validdays_cnt)
+table1_val2[i] <- sd(mm_agg$validdays_cnt)
+table1_val3[i] <- median(mm_agg$validdays_cnt)
+table1_val4[i] <- min(mm_agg$validdays_cnt)
+table1_val5[i] <- max(mm_agg$validdays_cnt)
+
+# accelerometry wear: valid days 
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Accelerometry wear: wear min/day"
+table1_val1[i] <- mean(mm_agg$wearminutes_perday)
+table1_val2[i] <- sd(mm_agg$wearminutes_perday)
+table1_val3[i] <- median(mm_agg$wearminutes_perday)
+table1_val4[i] <- min(mm_agg$wearminutes_perday)
+table1_val5[i] <- max(mm_agg$wearminutes_perday)
+
+
+# -----------------------------------------------------------------------------
 # race 
 
 # race mapping
@@ -173,7 +208,7 @@ table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 2, na.rm = TRUE)
 table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 2, na.rm = TRUE)/denom_cnt
 
 i <- sum(!is.na(table1_var)) + 1
-table1_var[i]  <- "Race: Not Other"
+table1_var[i]  <- "Race: Other"
 table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL %in% c(0, 3:9), na.rm = TRUE)
 table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL %in% c(0, 3:9), na.rm = TRUE)/denom_cnt
 
@@ -247,7 +282,7 @@ table(mastervisit_SUB$SMDHX5); sum(is.na(table(mastervisit_SUB$SMDHX5)))
 table(mastervisit_SUB$SMDHX18); sum(is.na(table(mastervisit_SUB$SMDHX18)))
 table(mastervisit_SUB$SMDHX25); sum(is.na(table(mastervisit_SUB$SMDHX25)))
 
-# hypertensive (Hyperlipidemia) 
+# hypertensive 
 table(mastervisit_SUB$SMDHX15); sum(is.na(table(mastervisit_SUB$SMDHX15)))
 
 # High blood cholesterol
@@ -271,24 +306,180 @@ table(mastervisit_SUB$SMDHX19); sum(is.na(table(mastervisit_SUB$SMDHX19)))
 table(mastervisit_SUB$SMDHX20); sum(is.na(table(mastervisit_SUB$SMDHX20)))
 
 
+## -----------------------------------------------------------------------------
 
+# function to convert coding for answers for medical history (MEDH) questions 
+# from "mastervisit" file into cases (1) or non-cases (0)
+# 1=no, 2=yes, 3=no to yes (incident cases), and 4=yes to no (changed their mind or forgot!)
+is_case <- function(val){
+  if (val %in% c(2,3)){
+    return(1)
+  } else {
+    return(0)
+  }
+}
 
-
-
-
+# heart attack, CHF, angina (ischemic chest pain), vascular procedure, Peripheral artery disease
+# (MI/CHF/angina/vascular procedure/PAD)
+MDH_var_tmp <- c('SMDHX3', 'SMDHX4', 'SMDHX5', 'SMDHX18', 'SMDHX25') 
+dat_tmp <- 
+  mastervisit_SUB %>% 
+  select(all_of(MDH_var_tmp)) %>%
+  rowwise() %>%
+  mutate_all(~ is_case(.))  %>%
+  mutate(max_c_across = max(c_across(everything())))
 i <- sum(!is.na(table1_var)) + 1
-table1_var[i]  <- "Self-reported health: good/very good/excellent"
-table1_val1[i] <- sum(mastervisit_SUB$SFHealth %in% 1:3, na.rm = TRUE)
-table1_val2[i] <- sum(mastervisit_SUB$SFHealth %in% 1:3, na.rm = TRUE)/denom_cnt
+table1_var[i]  <- "MI/CHF/angina/vascular procedure/PAD"
+table1_val1[i] <- sum(dat_tmp$max_c_across)
+table1_val2[i] <- sum(dat_tmp$max_c_across)/denom_cnt
+
+# hypertensive 
+MDH_var_tmp <- c('SMDHX15') 
+dat_tmp <- 
+  mastervisit_SUB %>% 
+  select(all_of(MDH_var_tmp)) %>%
+  rowwise() %>%
+  mutate_all(~ is_case(.))  %>%
+  mutate(max_c_across = max(c_across(everything())))
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Hypertension"
+table1_val1[i] <- sum(dat_tmp$max_c_across)
+table1_val2[i] <- sum(dat_tmp$max_c_across)/denom_cnt
+
+# High blood cholesterol 
+MDH_var_tmp <- c('SMDHX17') 
+dat_tmp <- 
+  mastervisit_SUB %>% 
+  select(all_of(MDH_var_tmp)) %>%
+  rowwise() %>%
+  mutate_all(~ is_case(.))  %>%
+  mutate(max_c_across = max(c_across(everything())))
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "High blood cholesterol"
+table1_val1[i] <- sum(dat_tmp$max_c_across)
+table1_val2[i] <- sum(dat_tmp$max_c_across)/denom_cnt
+
+# Stroke, TIA
+MDH_var_tmp <- c('SMDHX12', 'SMDHX13') 
+dat_tmp <- 
+  mastervisit_SUB %>% 
+  select(all_of(MDH_var_tmp)) %>%
+  rowwise() %>%
+  mutate_all(~ is_case(.))  %>%
+  mutate(max_c_across = max(c_across(everything())))
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Stroke/TIA"
+table1_val1[i] <- sum(dat_tmp$max_c_across)
+table1_val2[i] <- sum(dat_tmp$max_c_across)/denom_cnt
+
+# bronchitis, asthma (Pulmonary disease)
+MDH_var_tmp <- c('SMDHX6', 'SMDHX7') 
+dat_tmp <- 
+  mastervisit_SUB %>% 
+  select(all_of(MDH_var_tmp)) %>%
+  rowwise() %>%
+  mutate_all(~ is_case(.))  %>%
+  mutate(max_c_across = max(c_across(everything())))
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Pulmonary disease"
+table1_val1[i] <- sum(dat_tmp$max_c_across)
+table1_val2[i] <- sum(dat_tmp$max_c_across)/denom_cnt
+
+# Diabetes
+MDH_var_tmp <- c('SMDHX16') 
+dat_tmp <- 
+  mastervisit_SUB %>% 
+  select(all_of(MDH_var_tmp)) %>%
+  rowwise() %>%
+  mutate_all(~ is_case(.))  %>%
+  mutate(max_c_across = max(c_across(everything())))
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Diabetes"
+table1_val1[i] <- sum(dat_tmp$max_c_across)
+table1_val2[i] <- sum(dat_tmp$max_c_across)/denom_cnt
+
+# Cancer
+MDH_var_tmp <- c('SMDHX19') 
+dat_tmp <- 
+  mastervisit_SUB %>% 
+  select(all_of(MDH_var_tmp)) %>%
+  rowwise() %>%
+  mutate_all(~ is_case(.))  %>%
+  mutate(max_c_across = max(c_across(everything())))
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Cancer"
+table1_val1[i] <- sum(dat_tmp$max_c_across)
+table1_val2[i] <- sum(dat_tmp$max_c_across)/denom_cnt
+
+# Osteoarthritis
+MDH_var_tmp <- c('SMDHX20') 
+dat_tmp <- 
+  mastervisit_SUB %>% 
+  select(all_of(MDH_var_tmp)) %>%
+  rowwise() %>%
+  mutate_all(~ is_case(.))  %>%
+  mutate(max_c_across = max(c_across(everything())))
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Osteoarthritis"
+table1_val1[i] <- sum(dat_tmp$max_c_across)
+table1_val2[i] <- sum(dat_tmp$max_c_across)/denom_cnt
 
 
 
 
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# construct final table
 
+# combine vectors of data into data frame 
+table1_df <- data.frame(
+  var_name = table1_var,
+  var_val1 = table1_val1,
+  var_val2 = table1_val2,
+  var_val3 = table1_val3,
+  var_val4 = table1_val4,
+  var_val5 = table1_val5
+) %>%
+  filter(!is.na(var_name))
 
+# subset of two table parts which will be summarized differently 
+table1_df_A_nrow <- sum(!is.na(table1_df$var_val3))
+table1_df_A <- table1_df[1 : table1_df_A_nrow, ]
+table1_df_B <- table1_df[(table1_df_A_nrow + 1) : nrow(table1_df), ]
 
+table1_df_A_form <- 
+  table1_df_A %>%
+  mutate(
+    val_mean_f   = sprintf("%.1f", var_val1),
+    val_sd_f     = sprintf("%.1f", var_val2),
+    val_median_f = sprintf("%.1f", var_val3),
+    val_min_f    = sprintf("%.1f", var_val4),
+    val_max_f    = sprintf("%.1f", var_val5)
+    # val_max_f    = sprintf("% 06.3f", var_val5)
+  ) %>%
+  mutate(
+    val_mean_sd = paste0(val_mean_f, " (", val_sd_f, ")"),
+    val_median_min_max = paste0(val_median_f, " [", val_min_f, ", ", val_max_f, "]")
+  ) %>%
+  select(var_name, 
+         col1 = val_mean_sd, 
+         col2 = val_median_min_max)
 
+table1_df_B_form <- 
+  table1_df_B %>%
+  mutate(
+    val_cnt_f   = sprintf("%.0f", var_val1),
+    val_pct_f     = sprintf("%.1f", var_val2 * 100)
+    # val_max_f    = sprintf("% 06.3f", var_val5)
+  ) %>%
+  mutate(
+    val_cnt_pct = paste0(val_cnt_f, " (", val_pct_f, ")")
+  ) %>%
+  select(var_name, 
+         col1 = val_cnt_pct)
+table1_df_B_form$col2 = NA
 
-
+View(table1_df_A_form)
 
 
