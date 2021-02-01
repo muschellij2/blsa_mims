@@ -4,7 +4,7 @@
 #' the masterfile.
 #' 
 #' Input: 
-#' - /data_processed/2021-01-19-measures_masterfile.rds
+#' - /data_processed/2021-01-19-measures_masterfile_winsorized.rds
 #' 
 #' Notes: 
 #' - This Table 1 is based on Table 1 from 
@@ -479,7 +479,4 @@ table1_df_B_form <-
   select(var_name, 
          col1 = val_cnt_pct)
 table1_df_B_form$col2 = NA
-
-View(table1_df_A_form)
-
 
