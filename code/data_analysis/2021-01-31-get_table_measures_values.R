@@ -1,5 +1,6 @@
-#' This script generates "Table 2" for the paper. 
-#' These are summary of minute-level masures. 
+#' This script generates two tables with PA minute-level summary: 
+#' (A) (MAIN TEXT) summary of measurement's sum per day, per participant 
+#' (B) (SUPPLEMENTARY) summary of measurement per minute, per participant 
 #' 
 #' Input: 
 #' - /data_processed/2021-01-19-measures_masterfile_winsorized.rds
@@ -23,11 +24,25 @@ length(unique(measures_masterfile$subj_id))
 
 
 # ------------------------------------------------------------------------------
-# table without split into two groups
+# ------------------------------------------------------------------------------
+# --  TABLE (A)  ---------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-mm_agg <- measures_masterfile %>%
-  select(all_of(c("AC", "MIMS", "MAD", "ENMO", "AI"))) %>%
-  mutate(AC_LOG = log(AC + 1)) %>%
+# (1) using all day
+mm_agg_A <- measures_masterfile %>%
+  mutate(AC_LOG = log(AC + 1),
+         HEADER_TIME_STAMP_date = as.Date(HEADER_TIME_STAMP)) %>%
+  select(all_of(c("subj_id", "HEADER_TIME_STAMP_date",
+                  "AC", "AC_LOG", "MIMS", "MAD", "ENMO", "AI"))) %>%
+  group_by(subj_id, HEADER_TIME_STAMP_date) %>%
+  summarise_all(sum) %>%
+  group_by() %>%
+  select(-HEADER_TIME_STAMP_date) %>%
+  group_by(subj_id) %>%
+  summarise_all(mean) %>%
+  group_by() %>%
+  select(-subj_id) %>%
   pivot_longer(cols = everything()) %>%
   mutate(name = factor(name, levels = c("AC", "AC_LOG", "MIMS", "MAD", "ENMO", "AI"))) %>%
   group_by(name) %>%
@@ -40,29 +55,82 @@ mm_agg <- measures_masterfile %>%
   ) %>%
   ungroup()
 
-mm_agg_form <- 
-  mm_agg %>%
+mm_agg_A_form <- 
+  mm_agg_A %>%
   mutate(
-    val_mean_f   = sprintf("%.3f", val_mean),
-    val_sd_f     = sprintf("%.3f", val_sd),
-    val_median_f = sprintf("%.3f", val_median),
-    val_min_f    = sprintf("%.3f", val_min),
-    # val_max_f    = sprintf("% 06.3f", val_max),
-    val_max_f    = sprintf("%.3f", val_max)
+    val_mean_f   = sprintf("%.1f", val_mean),
+    val_sd_f     = sprintf("%.1f", val_sd),
+    val_median_f = sprintf("%.1f", val_median),
+    val_min_f    = sprintf("%.1f", val_min),
+    val_max_f    = sprintf("%.1f", val_max)
   ) %>%
   mutate(
     val_mean_sd = paste0(val_mean_f, " (", val_sd_f, ")"),
     val_median_min_max = paste0(val_median_f, " [", val_min_f, ", ", val_max_f, "]")
   ) %>%
   select(name, 
-         val_mean_sd = val_mean_sd, 
-         val_median_min_max = val_median_min_max)
+         val_mean_sd_A = val_mean_sd, 
+         val_median_min_max_A = val_median_min_max)
 
-View(mm_agg_form)
+
+# (2) excluding night time 
+mm_agg_B <- measures_masterfile %>%
+  dplyr::filter(!(lubridate::hour(HEADER_TIME_STAMP) %in% c(23,0,1,2,3,4))) %>%
+  mutate(AC_LOG = log(AC + 1),
+         HEADER_TIME_STAMP_date = as.Date(HEADER_TIME_STAMP)) %>%
+  select(all_of(c("subj_id", "HEADER_TIME_STAMP_date",
+                  "AC", "AC_LOG", "MIMS", "MAD", "ENMO", "AI"))) %>%
+  group_by(subj_id, HEADER_TIME_STAMP_date) %>%
+  summarise_all(sum) %>%
+  group_by() %>%
+  select(-HEADER_TIME_STAMP_date) %>%
+  group_by(subj_id) %>%
+  summarise_all(mean) %>%
+  group_by() %>%
+  select(-subj_id) %>%
+  pivot_longer(cols = everything()) %>%
+  mutate(name = factor(name, levels = c("AC", "AC_LOG", "MIMS", "MAD", "ENMO", "AI"))) %>%
+  group_by(name) %>%
+  summarise(
+    val_mean   = mean(value),
+    val_sd     = sd(value),
+    val_median = median(value),
+    val_min    = min(value),
+    val_max    = max(value)
+  ) %>%
+  ungroup()
+
+mm_agg_B_form <- 
+  mm_agg_B %>%
+  mutate(
+    val_mean_f   = sprintf("%.1f", val_mean),
+    val_sd_f     = sprintf("%.1f", val_sd),
+    val_median_f = sprintf("%.1f", val_median),
+    val_min_f    = sprintf("%.1f", val_min),
+    val_max_f    = sprintf("%.1f", val_max)
+  ) %>%
+  mutate(
+    val_mean_sd = paste0(val_mean_f, " (", val_sd_f, ")"),
+    val_median_min_max = paste0(val_median_f, " [", val_min_f, ", ", val_max_f, "]")
+  ) %>%
+  select(name, 
+         val_mean_sd_B = val_mean_sd, 
+         val_median_min_max_B = val_median_min_max)
+
+
+tbl_out <- mm_agg_A_form %>% left_join(mm_agg_B_form, by = "name")
+View(tbl_out)
+
+
+rm(mm_agg_A, mm_agg_A_form, mm_agg_B, mm_agg_B_form)
+
 
 
 # ------------------------------------------------------------------------------
-# table WITH split into two groups
+# ------------------------------------------------------------------------------
+# --  TABLE (B)  ---------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # (1) using all day
 mm_agg_A <- measures_masterfile %>%
@@ -79,6 +147,7 @@ mm_agg_A <- measures_masterfile %>%
     val_max    = max(value)
   ) %>%
   ungroup()
+
 mm_agg_A_form <- 
   mm_agg_A %>%
   mutate(
@@ -114,6 +183,7 @@ mm_agg_B <- measures_masterfile %>%
     val_max    = max(value)
   ) %>%
   ungroup()
+
 mm_agg_B_form <- 
   mm_agg_B %>%
   mutate(
@@ -132,7 +202,7 @@ mm_agg_B_form <-
          val_mean_sd_B = val_mean_sd, 
          val_median_min_max_B = val_median_min_max)
 
-tbl_out <- mm_agg_A_form %>% left_join(mm_agg_B_form, by = "name")
 
+tbl_out <- mm_agg_A_form %>% left_join(mm_agg_B_form, by = "name")
 View(tbl_out)
 
