@@ -12,9 +12,9 @@ library(data.table)
 options(scipen=999)
 
 # get the params for current run 
-# arg_str <- as.character(args[1])
-# param_row <- as.numeric(arg_str)
-param_row <- 1
+arg_str <- as.character(args[1])
+param_row <- as.numeric(arg_str)
+# param_row <- 1
 
 # pull parameters specific to this job 
 param_grid <- expand.grid(k = c(3,4,5,7,10), step2_replacement = c(0,1))
