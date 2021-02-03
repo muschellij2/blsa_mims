@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Run R script 
+module load conda_R
+Rscript /dcl01/smart/data/activity/blsa_mims/code/data_analysis/2021-02-03-get_measures_mapping_boot_curves.R $SGE_TASK_ID
