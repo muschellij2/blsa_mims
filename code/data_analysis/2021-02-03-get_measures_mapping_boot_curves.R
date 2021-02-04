@@ -20,7 +20,7 @@ param_row <- as.numeric(arg_str)
 param_grid <- expand.grid(k = c(3,4,5,7,10), step2_replacement = c(0,1))
 k <- param_grid[param_row, 1]
 step2_repl <- param_grid[param_row, 2]
-B <- 5
+B <- 1000
 
 # read minute-level measures data (winsorized)
 dat_acc_fpath <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile_winsorized.rds")
