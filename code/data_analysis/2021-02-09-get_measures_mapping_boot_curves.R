@@ -14,24 +14,41 @@ options(scipen=999)
 # get the params for current run 
 arg_str <- as.character(args[1])
 param_row <- as.numeric(arg_str)
-# param_row <- 1
+# param_row <- 14
 
 # pull parameters specific to this job 
-param_grid <- expand.grid(k = c(3,4,5,7,10), step2_replacement = c(0,1))
-k <- param_grid[param_row, 1]
+param_grid <- expand.grid(k = c(3,5,7,10), 
+                          step2_replacement = c(1),
+                          rm0AC = c(0,1),
+                          capAC = c(0,1))
+
+k          <- param_grid[param_row, 1]
 step2_repl <- param_grid[param_row, 2]
+rm0AC      <- param_grid[param_row, 3]
+capAC      <- param_grid[param_row, 4]
 B <- 1000
+message(paste0("k=", k, ", step2_repl=", step2_repl, ", rm0AC=", rm0AC, ", capAC=", capAC))
 
 # read minute-level measures data (winsorized)
 dat_acc_fpath <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile_winsorized.rds")
-dat_acc <- readRDS(dat_acc_fpath) 
+dat_acc <- readRDS(dat_acc_fpath)
 subj_id_vec <- unique(dat_acc$subj_id)
 subj_id_n <- length(subj_id_vec)
+AC_seq_max <- max(dat_acc$AC)
 
-AC_seq <- seq(from = 0, to = max(dat_acc$AC), by = 1)
+# apply special conditions of current simulation setting
+if (capAC){
+  AC_seq_max <- 5000
+  dat_acc <- dat_acc %>% filter(AC <= 5000)
+}
+if (rm0AC){
+  dat_acc <- dat_acc %>% filter(AC != 0)
+}
+AC_seq <- seq(from = 0, to = AC_seq_max, by = 1)
 boot_newdat <- data.frame(AC = AC_seq)
 
 set.seed(1)
+# define objects to store the results 
 boot_out_MIMS <- matrix(NA, nrow = length(AC_seq), ncol = B)
 boot_out_ENMO <- matrix(NA, nrow = length(AC_seq), ncol = B)
 boot_out_MAD  <- matrix(NA, nrow = length(AC_seq), ncol = B)
@@ -74,9 +91,13 @@ t2 <- Sys.time()
 message(t2-t1)
 
 # save results to file
-file_suff <- paste0("_k_", k, "_step2repl_", step2_repl, ".rds")
-saveRDS(boot_out_MIMS, paste0(here::here(), "/results/2021-02-03-boot_out_MIMS", file_suff)) # typo 
-saveRDS(boot_out_ENMO, paste0(here::here(), "/results/2021-02-03-boot_out_ENMO", file_suff))
-saveRDS(boot_out_MAD,  paste0(here::here(), "/results/2021-02-03-boot_out_MAD", file_suff))
-saveRDS(boot_out_AI,   paste0(here::here(), "/results/2021-02-03-boot_out_AI", file_suff))
+file_suff <- paste0("_k_", k, 
+                    "_step2repl_", step2_repl, 
+                    "_rm0AC_", rm0AC,
+                    "_capAC_", capAC,
+                    ".rds")
+saveRDS(boot_out_MIMS, paste0(here::here(), "/results/2021-02-09-boot_out_MIMS", file_suff)) # typo 
+saveRDS(boot_out_ENMO, paste0(here::here(), "/results/2021-02-09-boot_out_ENMO", file_suff))
+saveRDS(boot_out_MAD,  paste0(here::here(), "/results/2021-02-09-boot_out_MAD", file_suff))
+saveRDS(boot_out_AI,   paste0(here::here(), "/results/2021-02-09-boot_out_AI", file_suff))
 

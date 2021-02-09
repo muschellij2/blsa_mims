@@ -24,10 +24,4 @@ code/CSV.*
 resampled/
 notes_MK/
 
-/code/data_analysis/2021-01-18-get_measures_mapping/2021-01-18-get_measures_mapping.html
-/code/data_analysis/2021-01-18-get_measures_mapping/2021-01-18-get_measures_mapping_files/
-/code/data_analysis/2021-01-18-get_measures_mapping/2021-01-18-get_measures_mapping_cache/
-
-/code/data_analysis/2021-01-18-get_measures_mapping/2021-01-18-get_measures_mapping_winsorized.html
-/code/data_analysis/2021-01-18-get_measures_mapping/2021-01-18-get_measures_mapping_winsorized_files/
-/code/data_analysis/2021-01-18-get_measures_mapping/2021-01-18-get_measures_mapping_winsorized_cache/
+/code/data_analysis/2021-01-18-get_measures_mapping/
