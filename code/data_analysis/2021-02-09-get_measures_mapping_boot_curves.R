@@ -27,7 +27,10 @@ step2_repl <- param_grid[param_row, 2]
 rm0AC      <- param_grid[param_row, 3]
 capAC      <- param_grid[param_row, 4]
 B <- 1000
-message(paste0("k=", k, ", step2_repl=", step2_repl, ", rm0AC=", rm0AC, ", capAC=", capAC))
+
+# define parameters-specific filename suffix 
+file_suff <- paste0("_k_", k, "_step2repl_", step2_repl,  "_rm0AC_", rm0AC, "_capAC_", capAC, ".rds")
+message(file_suff)
 
 # read minute-level measures data (winsorized)
 dat_acc_fpath <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile_winsorized.rds")
@@ -86,16 +89,19 @@ for (b_tmp in 1 : B){ # b_tmp <- 1
   boot_fit <- gam(AI ~ s(AC, bs = "cr", k = k), data = boot_df)
   boot_out_AI[, b_tmp] <- predict(boot_fit, newdata = boot_newdat)
   
+  if (b_tmp %% 100 == 0){
+    # save tmp results to file 
+    saveRDS(boot_out_MIMS, paste0(here::here(), "/results/2021-02-09-boot_out_MIMS", file_suff)) # typo 
+    saveRDS(boot_out_ENMO, paste0(here::here(), "/results/2021-02-09-boot_out_ENMO", file_suff))
+    saveRDS(boot_out_MAD,  paste0(here::here(), "/results/2021-02-09-boot_out_MAD", file_suff))
+    saveRDS(boot_out_AI,   paste0(here::here(), "/results/2021-02-09-boot_out_AI", file_suff))
+  }
+  
 }
 t2 <- Sys.time()
 message(t2-t1)
 
-# save results to file
-file_suff <- paste0("_k_", k, 
-                    "_step2repl_", step2_repl, 
-                    "_rm0AC_", rm0AC,
-                    "_capAC_", capAC,
-                    ".rds")
+# save final results to file
 saveRDS(boot_out_MIMS, paste0(here::here(), "/results/2021-02-09-boot_out_MIMS", file_suff)) # typo 
 saveRDS(boot_out_ENMO, paste0(here::here(), "/results/2021-02-09-boot_out_ENMO", file_suff))
 saveRDS(boot_out_MAD,  paste0(here::here(), "/results/2021-02-09-boot_out_MAD", file_suff))
