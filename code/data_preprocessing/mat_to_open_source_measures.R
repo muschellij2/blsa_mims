@@ -66,10 +66,11 @@ out_ALL0 = SummarizedActigraphy::calculate_measures(
   calculate_mims = TRUE,
   verbose = TRUE)
 out_ALL0 = dplyr::rename(out_ALL0, HEADER_TIME_STAMP = time)
-# @MK on Jan 14, 2020: 
-# adding the belows line to address issue with MIMSunit package that allows 
-# negative values in the output, see issue: https://github.com/mHealthGroup/MIMSunit/issues/21
-out_ALL0$MIMS_UNIT[out_ALL0$MIMS_UNIT < 0] <- 0
+
+# # @MK on Jan 14, 2020: 
+# # adding the belows line to address issue with MIMSunit package that allows 
+# # negative values in the output, see issue: https://github.com/mHealthGroup/MIMSunit/issues/21
+# out_ALL0$MIMS_UNIT[out_ALL0$MIMS_UNIT < 0] <- 0
 
 # ENMO 
 # > The ENMO at time t is defined as max [r(t) – 1, 0]. 
