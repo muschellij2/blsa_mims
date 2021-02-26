@@ -1,4 +1,6 @@
 
+
+
 #' @description 
 #' This script takes raw output from ActiLife giving acceleration measurements 
 #' [g] along three orthogonal axes and computes minute-level summary statistic: 
@@ -7,6 +9,7 @@
 #'   values from the range. 
 #' 
 #' Notes: 
+#' qrsh 
 #' cd $mims 
 #' cd code/data_preprocessing
 #' Rnosave mat_to_invalid_observations_count_per_minute.R -l mem_free=30G,h_vmem=31G -N JB_invalid_obs
