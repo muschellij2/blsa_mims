@@ -1,4 +1,4 @@
-
+#!/usr/bin/env Rscript
 args = commandArgs(trailingOnly = TRUE)
 
 #' @description 
@@ -12,7 +12,7 @@ args = commandArgs(trailingOnly = TRUE)
 #' qrsh 
 #' cd $mims 
 #' cd code/data_preprocessing
-#' Rnosave mat_to_minute_quality_flag.R -l mem_free=30G,h_vmem=30G -t 1-5 -N JOB_quality_flag
+#' Rnosave mat_to_minute_quality_flag.R -l mem_free=30G,h_vmem=30G -t 839-839 -N JOB_quality_flag
 
 library(tidyverse)
 library(readr)
@@ -20,7 +20,7 @@ source(here::here("code/helper_functions.R"))
 options(digits.secs = 3)
 
 # define input file name (specific to array job index)
-ifile  =  as.numeric(as.character(args[1])) # as.numeric(Sys.getenv("SGE_TASK_ID"))
+ifile  =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 fnames = sort(list.files(path = here::here("mats"), full.names = TRUE, pattern = "[.]mat"))
 fname  = fnames[ifile]
 message(paste0("ifile: ", ifile, " [", round(ifile / length(fnames) * 100, 2), " %]"))

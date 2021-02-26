@@ -23,6 +23,7 @@ options(digits.secs = 3)
 
 # define input file name (specific to array job index)
 # ifile =  as.numeric(as.character(args[1])) # as.numeric(Sys.getenv("SGE_TASK_ID"))
+# 839 
 
 fnames = sort(list.files(path = here::here("mats"), full.names = TRUE, pattern = "[.]mat"))
 
