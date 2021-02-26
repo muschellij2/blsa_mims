@@ -64,7 +64,7 @@ for (ifile in 1 : length(fnames)){
     mutate(cnt_sec_invalid = round(cnt_obs_invalid / srate, 1)) %>%
     as.data.frame() 
 
-  saveRDS(out_ALL, outfile)
+  saveRDS(acc_df_agg, outfile)
   message("Saved output.")
 }
 
