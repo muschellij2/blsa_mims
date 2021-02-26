@@ -17,7 +17,7 @@
 #' - /covariates/mastervisit.rdata
 #' 
 #' out file: 
-#' - /data_processed/2021-01-15-measures_masterfile.rds
+#' - /data_processed/2021-02-25-measures_masterfile.rds
 #' 
 #' Notes: 
 #' - use: cd /dcl01/smart/data/activity/blsa_mims
@@ -157,9 +157,10 @@ fpaths_df_1stvisit <-
 
 dim(fpaths_df_1stvisit)
 length(unique(fpaths_df_1stvisit$subj_id)) 
-# Jan 15, 2020: 772
-# Jan 18, 2020: 710
-# Jan 19, 2020: 758
+# Jan 15, 2021: 772
+# Jan 18, 2021: 710
+# Jan 19, 2021: 758
+# Feb 25, 2021: 758
 
 
 # ------------------------------------------------------------------------------
@@ -199,7 +200,8 @@ for (i in 1:nrow(fpaths_df_1stvisit)){ # i <- 1
   f_osm <- readRDS(fpath_osm) %>% 
     dplyr::as_tibble() %>%
     dplyr::mutate(HEADER_TIME_STAMP = ymd_hms(HEADER_TIME_STAMP)) %>%
-    dplyr::rename(MIMS = MIMS_UNIT) 
+    dplyr::rename(MIMS = MIMS_UNIT) %>%
+    dplyr::mutate(MIMS = replace(MIMS, MIMS < 0, NA)) # added Feb 25, 2021
   # combine files
   f_comb <- f_osm %>% 
     dplyr::inner_join(f_ac, by = "HEADER_TIME_STAMP") %>%
@@ -221,11 +223,14 @@ dim(out_df)
 # Jan 15, 2021: 6225000       9
 # Jan 18, 2021: 5791560      10
 # Jan 19, 2021: 6147240      1
+# Feb 25, 2021: 6147240      1
 
 length(unique(out_df$file_id))
 # Jan 19, 2021: 721
+# Feb 25, 2021: 721
 
 # save as data frame
 # out_df_fpath <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile.rds")
-out_df_fpath <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile.rds")
+# out_df_fpath <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile.rds")
+out_df_fpath <- paste0(here::here(), "/data_processed/2021-02-25-measures_masterfile.rds")
 saveRDS(out_df, out_df_fpath)

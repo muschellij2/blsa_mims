@@ -92,10 +92,10 @@ for (i in 1 : result_fnames_l){ # i <- 1
   dat_i <- readRDS(paste0(here::here(), "/results/", fname_i))
   # aggregate bootstrap data results from the current file name
   dat_i_out <- data.frame(
-    val_mean = matrixStats::rowMeans2(dat_i),
-    val_median = matrixStats::rowMedians(dat_i),
-    val_q025 = matrixStats::rowQuantiles(dat_i, probs = 0.025),
-    val_q975 = matrixStats::rowQuantiles(dat_i, probs = 0.975)
+    val_mean = matrixStats::rowMeans2(dat_i, na.rm = TRUE),
+    val_median = matrixStats::rowMedians(dat_i, na.rm = TRUE),
+    val_q025 = matrixStats::rowQuantiles(dat_i, probs = 0.025, na.rm = TRUE),
+    val_q975 = matrixStats::rowQuantiles(dat_i, probs = 0.975, na.rm = TRUE)
   )
   dat_i_out$AC           = seq(0, by = 1, length.out = nrow(dat_i))
   dat_i_out$k            = k_i
@@ -108,7 +108,9 @@ for (i in 1 : result_fnames_l){ # i <- 1
 
 # combine list of data tables into one data table 
 dat_out_df <- rbindlist(dat_out_list) %>% as.data.frame()
+dim(dat_out_df)
 
 # save result to file 
 saveRDS(dat_out_df, paste0(here::here(), "/results/2021-02-11-boot_out_all.rds")) 
 
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-02-11-boot_out_all.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-02-11-boot_out_all.rds
