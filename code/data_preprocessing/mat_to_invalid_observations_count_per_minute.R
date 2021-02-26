@@ -9,7 +9,7 @@
 #' Notes: 
 #' cd $mims 
 #' cd code/data_preprocessing
-#' Rnosave 2021-02-22-twosample_ttest_aggresults.R -l mem_free=30G,h_vmem=31G -N JB_invalid_obs
+#' Rnosave mat_to_invalid_observations_count_per_minute.R -l mem_free=30G,h_vmem=31G -N JB_invalid_obs
 
 
 rm(list = ls())
