@@ -37,6 +37,7 @@ acc_df = acc_df %>%
 stopifnot(!anyNA(acc_df))
 
 # axis-specific flag: the value is same value as lead (one earlier) value
+# @MK (Feb 26): should be "as_lagged" (not: "as_lead"), but spotted after launching array job
 acc_df$X_aslead <- as.numeric(c(1, diff(acc_df$X)) == 0)
 acc_df$Y_aslead <- as.numeric(c(1, diff(acc_df$Y)) == 0)
 acc_df$Z_aslead <- as.numeric(c(1, diff(acc_df$Z)) == 0)
