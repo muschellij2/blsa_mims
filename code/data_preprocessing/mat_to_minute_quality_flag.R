@@ -1,18 +1,11 @@
 #!/usr/bin/env Rscript
 args = commandArgs(trailingOnly = TRUE)
 
-#' @description 
-#' This script takes raw output from ActiLife giving acceleration measurements 
-#' [g] along three orthogonal axes and computes minute-level summary statistic: 
-#' - valid_minute [0/1] -- a flag whether or not a minute is a valid minute 
-#'   in a sense it does not contain any of the axes being fixed at consecutive
-#'   values from the range. 
-#' 
 #' Notes: 
 #' qrsh 
-#' cd $mims 
+#' cd $mims
 #' cd code/data_preprocessing
-#' Rnosave mat_to_minute_quality_flag.R -l mem_free=30G,h_vmem=30G -t 839-839 -N JOB_quality_flag
+#' Rnosave mat_to_minute_quality_flag.R -l mem_free=30G,h_vmem=30G -t 1-1244 -tc 90 -N JOB_quality_flag
 
 library(tidyverse)
 library(readr)
@@ -44,6 +37,7 @@ acc_df = acc_df %>%
 stopifnot(!anyNA(acc_df))
 
 # axis-specific flag: the value is same value as lead (one earlier) value
+# @MK (Feb 26): should be "as_lagged" (not: "as_lead"), but spotted after launching array job
 acc_df$X_aslead <- as.numeric(c(1, diff(acc_df$X)) == 0)
 acc_df$Y_aslead <- as.numeric(c(1, diff(acc_df$Y)) == 0)
 acc_df$Z_aslead <- as.numeric(c(1, diff(acc_df$Z)) == 0)
