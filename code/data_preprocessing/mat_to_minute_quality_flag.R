@@ -2,10 +2,14 @@
 args = commandArgs(trailingOnly = TRUE)
 
 #' Notes: 
-#' qrsh 
+#' 
+#' qrsh -l mem_free=20G,h_vmem=20G,h_stack=256M
 #' cd $mims
 #' cd code/data_preprocessing
-#' Rnosave mat_to_minute_quality_flag.R -l mem_free=30G,h_vmem=30G -t 1-1244 -tc 90 -N JOB_quality_flag
+#' Rnosave mat_to_minute_quality_flag.R -l mem_free=20G,h_vmem=20G,h_stack=256M -t 1-1244 -tc 90 -N JOB_quality_flag
+#' 
+#' fname = "/Users/martakaras/OneDrive - Johns Hopkins/BLSA/mat/599705WaTAS1E23150406 (2015-09-18)RAW.mat"
+#' fname = "/dcl01/smart/data/activity/blsa_mims/mats/599705WaTAS1E23150406 (2015-09-18)RAW.mat"
 
 library(tidyverse)
 library(readr)
@@ -28,7 +32,7 @@ srate = acc_df$fs
 header = acc_df$hed
 dynamic_range =  get_dynamic_range(header)
 # get the max absolute value of dynamic range
-dr_maxabs = max(abs(dynamic_range))
+g_maxabs = max(abs(dynamic_range))
   
 # subset data to keep timestamp and three axes data only
 acc_df = acc_df$Xi
@@ -36,38 +40,55 @@ acc_df = acc_df %>%
   select(HEADER_TIME_STAMP, X, Y, Z)
 stopifnot(!anyNA(acc_df))
 
-# axis-specific flag: the value is same value as lead (one earlier) value
-# @MK (Feb 26): should be "as_lagged" (not: "as_lead"), but spotted after launching array job
-acc_df$X_aslead <- as.numeric(c(1, diff(acc_df$X)) == 0)
-acc_df$Y_aslead <- as.numeric(c(1, diff(acc_df$Y)) == 0)
-acc_df$Z_aslead <- as.numeric(c(1, diff(acc_df$Z)) == 0)
+# axis-specific flag: the value is same value as a lag (one earlier) value
+# x <- c(1,2,1,3,3,3,4,3,3)
+# x_aslag <- as.numeric(c(1, diff(x)) == 0)
+# x_aslead <- as.numeric(rev(c(1, diff(rev(x))) == 0))
+# x_ascontig <- pmax(x_aslag, x_aslead)
+
+# x-axis flag: as contiguous 
+acc_df$X_aslag    <- as.numeric(c(1, diff(acc_df$X)) == 0)
+acc_df$X_aslead   <- as.numeric(rev(c(1, diff(rev(acc_df$X))) == 0))
+acc_df$X_ascontig <- pmax(acc_df$X_aslag, acc_df$X_aslead)
+acc_df <- select(acc_df, -X_aslag, -X_aslead)
+# y-axis flag: as contiguous 
+acc_df$Y_aslag    <- as.numeric(c(1, diff(acc_df$Y)) == 0)
+acc_df$Y_aslead   <- as.numeric(rev(c(1, diff(rev(acc_df$Y))) == 0))
+acc_df$Y_ascontig <- pmax(acc_df$Y_aslag, acc_df$Y_aslead)
+acc_df <- select(acc_df, -Y_aslag, -Y_aslead)
+# z-axis flag: as contiguous 
+acc_df$Z_aslag    <- as.numeric(c(1, diff(acc_df$Z)) == 0)
+acc_df$Z_aslead   <- as.numeric(rev(c(1, diff(rev(acc_df$Z))) == 0))
+acc_df$Z_ascontig <- pmax(acc_df$Z_aslag, acc_df$Z_aslead)
+acc_df <- select(acc_df, -Z_aslag, -Z_aslead)
+
 acc_df <- acc_df %>%
   mutate(
     # axis-specific flag: the value is an extreme dynamic range value
-    X_spike = as.numeric(abs(X) == dr_maxabs),
-    Y_spike = as.numeric(abs(Y) == dr_maxabs),
-    Z_spike = as.numeric(abs(Z) == dr_maxabs),
-    # axis-specific flag: the value (a) is same value as lead + (b) is an extreme dynamic range value
-    X_aslead_spike =  as.numeric(X_aslead + X_spike == 2),
-    Y_aslead_spike =  as.numeric(Y_aslead + Y_spike == 2),
-    Z_aslead_spike =  as.numeric(Z_aslead + Z_spike == 2),
+    X_g_maxabs = as.numeric(abs(X) == g_maxabs),
+    Y_g_maxabs = as.numeric(abs(Y) == g_maxabs),
+    Z_g_maxabs = as.numeric(abs(Z) == g_maxabs),
+    # axis-specific flag: the value (a) is same value as lag observation + (b) is an extreme dynamic range value
+    X_contig_g_maxabs =  as.numeric(X_ascontig + X_g_maxabs == 2),
+    Y_contig_g_maxabs =  as.numeric(Y_ascontig + Y_g_maxabs == 2),
+    Z_contig_g_maxabs =  as.numeric(Z_ascontig + Z_g_maxabs == 2),
     # three axes-combined flag: any value is an extreme dynamic range value
-    any_spike =  as.numeric((X_spike + Y_spike + Z_spike) > 0),
+    anyaxis_g_maxabs =  as.numeric((X_g_maxabs + Y_g_maxabs + Z_g_maxabs) > 0),
     # three axes-combined flag: any value (a) is same value as lead + (b) is an extreme dynamic range value
-    any_aslead_spike =  as.numeric((X_aslead_spike + Y_aslead_spike + Z_aslead_spike) > 0)
+    anyaxis_contig_g_maxabs =  as.numeric((X_contig_g_maxabs + Y_contig_g_maxabs + Z_contig_g_maxabs) > 0)
   ) %>%
-  select(-X_aslead, -Y_aslead, -Z_aslead) %>%
-  select(-X_spike, -Y_spike, -Z_spike) %>%
-  select(-X_aslead_spike, -Y_aslead_spike, -Z_aslead_spike) 
+  select(-X_ascontig, -Y_ascontig, -Z_ascontig) %>%
+  select(-X_g_maxabs, -Y_g_maxabs, -Z_g_maxabs) %>%
+  select(-X_contig_g_maxabs, -Y_contig_g_maxabs, -Z_contig_g_maxabs) 
 
-# compute number of invalid subsecond-level observations per minute
-acc_df_agg = 
+# aggregate number of positive flags per minute 
+acc_df_agg <- 
   acc_df %>% 
   mutate(HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, "1 min")) %>% 
   group_by(HEADER_TIME_STAMP) %>% 
   summarize(
-    cnt_any_spike = sum(any_spike),
-    cnt_any_aslead_spike = sum(any_aslead_spike)
+    anyaxis_g_maxabs = sum(anyaxis_g_maxabs),
+    anyaxis_contig_g_maxabs = sum(anyaxis_contig_g_maxabs)
   ) %>% 
   as.data.frame() 
 
