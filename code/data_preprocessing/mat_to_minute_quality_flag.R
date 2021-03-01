@@ -121,6 +121,8 @@ acc_df_agg <-
 ) %>% ungroup() %>%
   as.data.frame()
 
+# acc_df_agg %>% select(-HEADER_TIME_STAMP) %>% summarise_all(sum)
+
 saveRDS(acc_df_agg, outfile)
 message("Saved output.")
 
