@@ -3,10 +3,16 @@ args = commandArgs(trailingOnly = TRUE)
 
 #' Notes: 
 #' 
+#' qrsh -l mem_free=15G,h_vmem=15G,h_stack=256M
 #' qrsh -l mem_free=20G,h_vmem=20G,h_stack=256M
+#' qrsh -l mem_free=25G,h_vmem=25G,h_stack=256M
+#' 
 #' cd $mims
 #' cd code/data_preprocessing
 #' Rnosave mat_to_minute_quality_flag.R -l mem_free=20G,h_vmem=20G,h_stack=256M -t 1-1244 -tc 90 -N JOB_quality_flag
+#' 
+#' # redo
+#' Rnosave mat_to_minute_quality_flag.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 830-830 -tc 90 -N JOB_quality_flag
 #' 
 #' fname = "/Users/martakaras/OneDrive - Johns Hopkins/BLSA/mat/599705WaTAS1E23150406 (2015-09-18)RAW.mat"
 #' fname = "/dcl01/smart/data/activity/blsa_mims/mats/599705WaTAS1E23150406 (2015-09-18)RAW.mat"
