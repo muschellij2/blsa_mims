@@ -6,24 +6,24 @@
 #' - We use valid days only, and valid minutes within valid days. 
 #' 
 #' input files: 
-#' > /data_processed/2021-02-25-measures_masterfile_winsorized.rds
+#' > /data_processed/2021-03-03-measures_masterfile_winsorized.rds
 #' 
 #' output files: 
-#' > /results/2021-02-25-correlations_between_measures.rds
-
+#' > /results/2021-03-03-correlations_between_measures.rds
 
 rm(list = ls())
 library(dplyr)
 library(data.table)
 library(lubridate)
 
-fpath_tmp <- paste0(here::here(), "/data_processed/2021-02-25-measures_masterfile_winsorized.rds")
+fpath_tmp <- paste0(here::here(), "/data_processed/2021-03-03-measures_masterfile_winsorized.rds")
 dat <- readRDS(fpath_tmp)
 dim(dat)
 # Jan 18, 2021: 5791560      10
 # Jan 19, 2021: 6147240      10
 # Feb 22, 2021: 6147240      10
 # Feb 25, 2021: 6147240      10
+# Mar 3,  2021: 6147240      12
 
 # function to correlation matrix' upper triangle vector from data frame
 dat_to_corr_uppertri <- function(dat, corr_col_names = c("AC", "MIMS", "ENMO", "MAD", "AI")){
@@ -40,7 +40,7 @@ dat_to_corr_uppertri <- function(dat, corr_col_names = c("AC", "MIMS", "ENMO", "
 # compute correlations for all day data (24h)
 dat_corr_allday <- 
   dat %>% 
-  dplyr::filter(wear_flag == 1) %>% # added Feb 22, 2021
+  dplyr::filter(wear_and_valid_flag == 1) %>% # added Mar 3, 2021
   dplyr::group_by(file_id) %>%
   dplyr::mutate(obs_cnt = n(), .before = dplyr::ends_with("_id")) %>%
   dplyr::ungroup() %>% 
@@ -53,7 +53,7 @@ dat_corr_allday <-
 # compute correlations while EXCLUDING 11pm - 5am 
 dat_corr_from11to5exclude <- 
   dat %>% 
-  dplyr::filter(wear_flag == 1) %>% # added Feb 22, 2021
+  dplyr::filter(wear_and_valid_flag == 1) %>% # # added Mar 3, 2021
   dplyr::filter(!(lubridate::hour(HEADER_TIME_STAMP) %in% c(23,0,1,2,3,4))) %>%
   dplyr::group_by(file_id) %>%
   dplyr::mutate(obs_cnt = n(), .before = dplyr::ends_with("_id")) %>%
@@ -75,6 +75,7 @@ length(unique(dat_corr_comb$file_id))
 # [1] 721
 
 # save as data frame
-fout_path <- paste0(here::here(), "/results/2021-02-25-correlations_between_measures.rds")
+fout_path <- paste0(here::here(), "/results/2021-03-03-correlations_between_measures.rds")
 saveRDS(dat_corr_comb, fout_path)
 
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-03-correlations_between_measures.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-03-correlations_between_measures.rds
