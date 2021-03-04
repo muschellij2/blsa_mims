@@ -12,7 +12,6 @@ options(scipen=999)
 
 # get the params for current run 
 param_row <- as.numeric(Sys.getenv("SGE_TASK_ID"))
-param_row <- 1
 # param_row <- 14
 
 # pull parameters specific to this job 
