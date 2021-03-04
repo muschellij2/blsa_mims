@@ -12,13 +12,14 @@ options(scipen=999)
 
 # get the params for current run 
 param_row <- as.numeric(Sys.getenv("SGE_TASK_ID"))
-# param_row <- 14
+# param_row <- 12
 
 # pull parameters specific to this job 
 B <- 1000
 param_grid <- expand.grid(k = c(5, 7, 10, 20, 30, 40), 
                           step2_replacement = c(1),
-                          rm0AC = c(0,1))
+                          rm0AC = c(0,1),
+                          capAC = c(0))
 dim(param_grid)
 
 k          <- param_grid[param_row, 1]
@@ -44,7 +45,7 @@ AC_seq_max  <- round(max(dat_acc$AC))
 #   AC_seq_max <- 5000
 #   dat_acc <- dat_acc %>% filter(AC <= 5000)
 # }
-if (rm0AC){
+if (rm0AC == 1){
   dat_acc <- dat_acc %>% filter(AC != 0)
 }
 AC_seq <- seq(from = 0, to = AC_seq_max, by = 1)
