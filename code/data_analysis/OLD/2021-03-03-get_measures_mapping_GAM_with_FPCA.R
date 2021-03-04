@@ -93,8 +93,28 @@ t2 - t1
 # use mapping from x_ij to FPC_1, to get FPC_1 covariate in the data set 
 dim(FPCA_out$phi)
 FPCA_out_df <-  data.frame(x = FPCA_out$workGrid, y = FPCA_out$phi[, 1])
+plot(FPCA_out_df, main = "MIMS_resid_FPC1")
 FPCA_map <- gam(y ~ s(x, bs = "cr", k = 50), data = FPCA_out_df)
 dat_acc$MIMS_resid_FPC1 <- predict(FPCA_map, newdata = data.frame(x = dat_acc$AC))
+
+# fit model for few individuals
+t1 <- Sys.time()
+fit_MIMS_bam <- 
+  mgcv::bam(MIMS ~ s(AC, bs = "cr", k = 10) + s(subj_id_F, by = MIMS_resid_FPC1, bs = "re"),
+            method = "fREML", discrete = TRUE, data = dat_acc)
+t2 <- Sys.time()
+t2 - t1
+plot(fit_MIMS_bam, main = "plot(fit_MIMS_bam)")
+
+library(tidymv)
+
+plot_smooths(
+  model = fit_MIMS_bam,
+  series = AC
+)
+
+
+fit_MIMS_gamm_n50$coefficients
 
 
 
