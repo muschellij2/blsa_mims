@@ -30,6 +30,7 @@ capAC      <- param_grid[param_row, 4]
 # define parameters-specific filename suffix 
 file_suff <- paste0("_k_", k, "_step2repl_", step2_repl,  "_rm0AC_", rm0AC, "_capAC_", capAC, ".rds")
 message(file_suff)
+message(paste0("B=", B))
 
 # read minute-level measures data (winsorized)
 dat_acc_fpath <- paste0(here::here(), "/data_processed/2021-03-03-measures_masterfile_winsorized.rds")
