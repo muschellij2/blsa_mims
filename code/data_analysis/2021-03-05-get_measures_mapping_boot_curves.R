@@ -15,7 +15,7 @@ param_row <- as.numeric(Sys.getenv("SGE_TASK_ID"))
 # param_row <- 12
 
 # pull parameters specific to this job 
-B <- 2
+B <- 1000
 param_grid <- expand.grid(k = c(5, 7, 10, 20, 30, 40), 
                           step2_replacement = c(1),
                           rm0AC = c(0,1),
