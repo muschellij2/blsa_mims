@@ -3,7 +3,7 @@ args = commandArgs(trailingOnly=TRUE)
 
 #' cd $mims
 #' cd code/data_analysis
-#' Rnosave 2021-03-03-get_measures_mapping_boot_curves.R -l mem_free=20G,h_vmem=20G,h_stack=256M -t 1-12 -N JOB_gam_boot
+#' Rnosave 2021-03-05-get_measures_mapping_boot_curves.R -l mem_free=20G,h_vmem=20G,h_stack=256M -t 1-12 -N JOB_gam_boot
 
 library(tidyverse)
 library(mgcv)
@@ -15,7 +15,7 @@ param_row <- as.numeric(Sys.getenv("SGE_TASK_ID"))
 # param_row <- 12
 
 # pull parameters specific to this job 
-B <- 3
+B <- 2
 param_grid <- expand.grid(k = c(5, 7, 10, 20, 30, 40), 
                           step2_replacement = c(1),
                           rm0AC = c(0,1),
@@ -93,10 +93,10 @@ for (b_tmp in 1 : B){ # b_tmp <- 1
   
   if (b_tmp %% 100 == 0){
     # save tmp results to file 
-    saveRDS(boot_out_MIMS, paste0(here::here(), "/results/2021-03-03-boot_out_MIMS", file_suff)) # typo 
-    saveRDS(boot_out_ENMO, paste0(here::here(), "/results/2021-03-03-boot_out_ENMO", file_suff))
-    saveRDS(boot_out_MAD,  paste0(here::here(), "/results/2021-03-03-boot_out_MAD", file_suff))
-    saveRDS(boot_out_AI,   paste0(here::here(), "/results/2021-03-03-boot_out_AI", file_suff))
+    saveRDS(boot_out_MIMS, paste0(here::here(), "/results/2021-03-05-boot_out_MIMS", file_suff)) # typo 
+    saveRDS(boot_out_ENMO, paste0(here::here(), "/results/2021-03-05-boot_out_ENMO", file_suff))
+    saveRDS(boot_out_MAD,  paste0(here::here(), "/results/2021-03-05-boot_out_MAD", file_suff))
+    saveRDS(boot_out_AI,   paste0(here::here(), "/results/2021-03-05-boot_out_AI", file_suff))
   }
   
 }
@@ -104,8 +104,10 @@ t2 <- Sys.time()
 message(t2-t1)
 
 # save final results to file
-saveRDS(boot_out_MIMS, paste0(here::here(), "/results/2021-03-03-boot_out_MIMS", file_suff)) # typo 
-saveRDS(boot_out_ENMO, paste0(here::here(), "/results/2021-03-03-boot_out_ENMO", file_suff))
-saveRDS(boot_out_MAD,  paste0(here::here(), "/results/2021-03-03-boot_out_MAD", file_suff))
-saveRDS(boot_out_AI,   paste0(here::here(), "/results/2021-03-03-boot_out_AI", file_suff))
+saveRDS(boot_out_MIMS, paste0(here::here(), "/results/2021-03-05-boot_out_MIMS", file_suff)) # typo 
+saveRDS(boot_out_ENMO, paste0(here::here(), "/results/2021-03-05-boot_out_ENMO", file_suff))
+saveRDS(boot_out_MAD,  paste0(here::here(), "/results/2021-03-05-boot_out_MAD", file_suff))
+saveRDS(boot_out_AI,   paste0(here::here(), "/results/2021-03-05-boot_out_AI", file_suff))
 
+
+# "/dcl01/smart/data/activity/blsa_mims/results/2021-03-03-boot_out_MIMS_k_40_step2repl_1_rm0AC_1_capAC_0.rds"
