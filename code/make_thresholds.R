@@ -89,10 +89,10 @@ data = data %>%
          MIMS_UNIT = round(MIMS_UNIT, 1),
          vectormagnitude = round(vectormagnitude, 1)) 
 
-# data %>% 
-#   ggplot(aes(x = MIMS_UNIT, y = vectormagnitude)) + 
-#   geom_point(alpha = 0.01) + 
-#   geom_smooth(se = FALSE)
+data %>%
+  ggplot(aes(x = MIMS_UNIT, y = vectormagnitude)) +
+  geom_point(alpha = 0.01) +
+  geom_smooth(se = FALSE)
 
 # Sample based on ID
 # Sample based on Subject
@@ -107,10 +107,12 @@ pred_df = data.frame(vectormagnitude = c(100, 1853, 1952, 2690))
 mod = gam(MIMS_UNIT ~ s(vectormagnitude, bs = "cr"), data = data)
 
 predict(mod, newdata = pred_df)
+pred_df$MIMS_UNIT = predict(mod, newdata = pred_df)
 
 mod_over0 = gam(MIMS_UNIT ~ s(vectormagnitude, bs = "cr"), 
                 data = data %>% 
                   filter(vectormagnitude > 0))
+pred_df$MIMS_UNIT_over0 = predict(mod_over0, newdata = pred_df)
 predict(mod_over0, newdata = pred_df)
 
 
@@ -127,6 +129,11 @@ predict(ai_mod_over0, newdata = pred_df)
 
 data = data %>% 
   mutate(mvpa = vectormagnitude >= 1853)
+
+res = data %>% 
+  filter(vectormagnitude >= 1852.5 & vectormagnitude <= 1853.5) %>% 
+  summarise_at(vars(MIMS_UNIT, AI, MAD), list(mean = mean, median = median))
+  
 
 
 bivar = data %>% 

@@ -20,9 +20,11 @@ df = df %>%
   )
 
 df = df %>% 
-  mutate(csv_file = here::here("open_measures", paste0(id, "_MIMS.csv.gz")),
-         ac_file = here::here("csv", paste0(id, "60sec.csv.gz")),
-         res_file = here::here("resampled", paste0(id, ".rds")))
+  mutate(
+    csv_file = here::here("open_measures", paste0(id, "_MIMS.csv.gz")),
+    ac_file = here::here("csv", paste0(id, "60sec.csv.gz")),
+    res_csv_file = here::here("resampled", paste0(id, "_MIMS.csv.gz")),
+    res_file = here::here("resampled", paste0(id, ".rds")))
 rm(fnames)
 
 
@@ -57,4 +59,15 @@ if (!file.exists(outfile)) {
   resampled_data <- MIMSunit::extrapolate(acc_df, dynamic_range, noise_level, 
                                           k, spar)
   readr::write_rds(resampled_data, outfile, compress = "xz")
+} else {
+  resampled_data = read_rds(outfile)
 }
+
+
+outfile = df$res_csv_file[ifile]
+
+if (!file.exists(outfile)) {
+  out = SummarizedActigraphy::calculate_measures()
+  readr::write_csv(mims, outfile)
+}
+  
