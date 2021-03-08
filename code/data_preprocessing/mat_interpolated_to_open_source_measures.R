@@ -41,60 +41,67 @@ message(fname)
 outfile = here::here("open_source_measures", paste0(id, "_interpolated_OSM.rds"))
 
 # read raw accelerometry data .mat file
-acc_df = read_acc_mat(fname)
-
-# pull meta information about the file 
-srate = acc_df$fs
-header = acc_df$hed
-dynamic_range =  get_dynamic_range(header)
+if (!file.exists(outfile)) {
+  acc_df = read_acc_mat(fname)
   
-# subset data to keep timestamp and three axes data only
-acc_df = acc_df$Xi
-acc_df = acc_df %>%
-  select(HEADER_TIME_STAMP, X, Y, Z)
-stopifnot(!anyNA(acc_df))
-
-# ------------------------------------------------------------------------------
-# compute open source measures (OSM)
-
-# MIMS, AI, MAD 
-# > see documentation at 
-#   https://github.com/muschellij2/SummarizedActigraphy/blob/master/R/calculate_measures.R
-acc_df = SummarizedActigraphy::mims_default_processing(
-  df = acc_df, verbose = TRUE, dynamic_range = dynamic_range)
-out_ALL0 = SummarizedActigraphy::calculate_measures(
-  df = acc_df, 
-  fix_zeros = TRUE, 
-  dynamic_range = dynamic_range,
-  calculate_mims = TRUE,
-  verbose = TRUE)
-out_ALL0 = dplyr::rename(out_ALL0, HEADER_TIME_STAMP = time)
-
-# # @MK on Jan 14, 2020: 
-# # adding the belows line to address issue with MIMSunit package that allows 
-# # negative values in the output, see issue: https://github.com/mHealthGroup/MIMSunit/issues/21
-# out_ALL0$MIMS_UNIT[out_ALL0$MIMS_UNIT < 0] <- 0
-
-# ENMO 
-# > The ENMO at time t is defined as max [r(t) – 1, 0]. 
-# > Further, the ENMO in a window of size H is defined as the average ENMO across 
-#   the time points in that window. 
-out_ENMO = acc_df %>% 
-  mutate(         
-    r = sqrt(X^2 + Y^2 + Z^2),
-    ENMO_t = ifelse(r - 1 > 0 , r - 1, 0),
-    HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, "1 min")) %>% 
-  group_by(HEADER_TIME_STAMP) %>% 
-  summarise(
-    ENMO = mean(ENMO_t)
-  )
-
-# combine partial results into final data frame 
-out_ALL = full_join(out_ALL0, out_ENMO, by = "HEADER_TIME_STAMP")
-
-# ------------------------------------------------------------------------------
-# save to file
-
-saveRDS(out_ALL, outfile)
-message("Saved output.")
-
+  # pull meta information about the file 
+  srate = acc_df$fs
+  header = acc_df$hed
+  dynamic_range =  get_dynamic_range(header)
+  
+  # subset data to keep timestamp and three axes data only
+  acc_df = acc_df$Xi
+  acc_df = acc_df %>%
+    select(HEADER_TIME_STAMP, X, Y, Z)
+  stopifnot(!anyNA(acc_df))
+  
+  # ------------------------------------------------------------------------------
+  # compute open source measures (OSM)
+  
+  # MIMS, AI, MAD 
+  # > see documentation at 
+  #   https://github.com/muschellij2/SummarizedActigraphy/blob/master/R/calculate_measures.R
+  acc_df = SummarizedActigraphy::mims_default_processing(
+    df = acc_df, verbose = TRUE, dynamic_range = dynamic_range)
+  # round or not round?
+  acc_df = acc_df %>% 
+    mutate(X = round(X, 3),
+           Y = round(Y, 3),
+           Z = round(Z, 3))
+  out_ALL = SummarizedActigraphy::calculate_measures(
+    df = acc_df, 
+    fix_zeros = FALSE, # already imputed!
+    dynamic_range = dynamic_range,
+    calculate_mims = TRUE,
+    flag_data = FALSE,
+    verbose = TRUE)
+  out_ALL = dplyr::rename(out_ALL, HEADER_TIME_STAMP = time)
+  
+  # # @MK on Jan 14, 2020: 
+  # # adding the belows line to address issue with MIMSunit package that allows 
+  # # negative values in the output, see issue: https://github.com/mHealthGroup/MIMSunit/issues/21
+  # out_ALL0$MIMS_UNIT[out_ALL0$MIMS_UNIT < 0] <- 0
+  
+  # ENMO 
+  # > The ENMO at time t is defined as max [r(t) – 1, 0]. 
+  # > Further, the ENMO in a window of size H is defined as the average ENMO across 
+  #   the time points in that window. 
+  # out_ENMO = acc_df %>% 
+  #   mutate(         
+  #     r = sqrt(X^2 + Y^2 + Z^2),
+  #     ENMO_t = ifelse(r - 1 > 0 , r - 1, 0),
+  #     HEADER_TIME_STAMP = lubridate::floor_date(HEADER_TIME_STAMP, "1 min")) %>% 
+  #   group_by(HEADER_TIME_STAMP) %>% 
+  #   summarise(
+  #     ENMO = mean(ENMO_t)
+  #   )
+  # 
+  # # combine partial results into final data frame 
+  # out_ALL = full_join(out_ALL0, out_ENMO, by = "HEADER_TIME_STAMP")
+  
+  # ------------------------------------------------------------------------------
+  # save to file
+  
+  saveRDS(out_ALL, outfile)
+  message("Saved output.")
+}
