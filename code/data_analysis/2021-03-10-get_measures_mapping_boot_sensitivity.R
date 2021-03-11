@@ -25,7 +25,7 @@ job_idx = as.numeric(Sys.getenv("SGE_TASK_ID")) # job_idx <- 2
 AC_thresh <- c(1, 1853, 2303)[job_idx]
 message(paste0("AC_thresh = ", AC_thresh))
 
-measure_grid_l <- 10
+measure_grid_l <- 100
 get_auc <- TRUE
 
 
@@ -166,7 +166,7 @@ saveRDS(perf_df_comb, paste0(here::here(), "/results/", out_fname))
 
 message("FINISHED and saved.")
 
-# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1853.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1853.rds 
-# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1.rds 
-# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_2303.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_2303.rds 
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1853.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1853.rds
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1.rds
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_2303.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_2303.rds
 
