@@ -88,15 +88,15 @@ param_df <- rbind(param_df, data.frame(
 param_df <- rbind(param_df, data.frame(
   AC_thresh        = rep(1853, 4),
   measure_name     = c("MIMS", "ENMO", "MAD", "AI"),
-  measure_grid_min = c(9.5, 0.02, 0.03, 3),
-  measure_grid_max = c(11.5, 0.05, 0.05, 4)
+  measure_grid_min = c(9.5, 0.01, 0.02, 3),
+  measure_grid_max = c(11.5, 0.05, 0.045, 4)
 ))
 
 # AC_thresh = 2303
 param_df <- rbind(param_df, data.frame(
   AC_thresh        = rep(2303, 4),
   measure_name     = c("MIMS", "ENMO", "MAD", "AI"),
-  measure_grid_min = c(11.5, 0.02, 0.035, 4),
+  measure_grid_min = c(11.5, 0.015, 0.035, 3),
   measure_grid_max = c(13.5, 0.06, 0.055, 5)
 ))
 
@@ -165,3 +165,8 @@ out_fname <- paste0("2021-03-10-measures_mapping_sensitivity_ACthresh_", AC_thre
 saveRDS(perf_df_comb, paste0(here::here(), "/results/", out_fname))
 
 message("FINISHED and saved.")
+
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1853.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1853.rds 
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_1.rds 
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_2303.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-10-measures_mapping_sensitivity_ACthresh_2303.rds 
+
