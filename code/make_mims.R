@@ -28,7 +28,7 @@ if (!file.exists(outfile)) {
   dynamic_range = c(-meta$gr, meta$gr)
   
   df = SummarizedActigraphy::read_acc_csv(csv_file)
-  hdr = df$parsed_header
+  hdr = df$header
   df = df$data
   
   df = df %>%

@@ -28,17 +28,23 @@ options(digits.secs = 3)
 
 # source util functions
 
+fnames = list.files(path = here::here("mats"), full.names = TRUE, pattern = "[.]mat")
+outfiles = here::here("open_measures", 
+                      paste0(sub("RAW[.]mat", "", basename(fnames)), 
+                             "_interpolated_OSM.rds"))
+
+
 # define input file name (specific to array job index)
 ifile =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifile)) {
   ifile = 1
 }
-fnames = list.files(path = here::here("mats"), full.names = TRUE, pattern = "[.]mat")
+
 fname = fnames[ifile]
 id = sub("RAW[.]mat", "", basename(fname))
 message(fname)
 # define output file name
-outfile = here::here("open_source_measures", paste0(id, "_interpolated_OSM.rds"))
+outfile = here::here("open_measures", paste0(id, "_interpolated_OSM.rds"))
 
 # read raw accelerometry data .mat file
 if (!file.exists(outfile)) {
@@ -65,7 +71,7 @@ if (!file.exists(outfile)) {
     df = acc_df, verbose = TRUE, dynamic_range = dynamic_range)
   # round or not round?
   acc_df = acc_df %>% 
-    mutate(X = round(X, 3),
+    dplyr::mutate(X = round(X, 3),
            Y = round(Y, 3),
            Z = round(Z, 3))
   out_ALL = SummarizedActigraphy::calculate_measures(
@@ -102,6 +108,6 @@ if (!file.exists(outfile)) {
   # ------------------------------------------------------------------------------
   # save to file
   
-  saveRDS(out_ALL, outfile)
+  saveRDS(out_ALL, outfile, compress = "xz")
   message("Saved output.")
 }
