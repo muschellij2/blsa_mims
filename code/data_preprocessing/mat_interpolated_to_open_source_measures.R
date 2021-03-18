@@ -79,6 +79,7 @@ if (!file.exists(outfile)) {
     fix_zeros = FALSE, # already imputed!
     dynamic_range = dynamic_range,
     calculate_mims = TRUE,
+    calculate_ac = TRUE,
     flag_data = FALSE,
     verbose = TRUE)
   out_ALL = dplyr::rename(out_ALL, HEADER_TIME_STAMP = time)

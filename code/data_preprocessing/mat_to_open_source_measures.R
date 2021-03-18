@@ -64,6 +64,8 @@ out_ALL0 = SummarizedActigraphy::calculate_measures(
   fix_zeros = TRUE, 
   dynamic_range = dynamic_range,
   calculate_mims = TRUE,
+  calculate_ac = TRUE,
+  flag_data = FALSE,
   verbose = TRUE)
 out_ALL0 = dplyr::rename(out_ALL0, HEADER_TIME_STAMP = time)
 
