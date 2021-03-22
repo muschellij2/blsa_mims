@@ -74,7 +74,7 @@ if (!file.exists(outfile)) {
     dplyr::mutate(X = round(X, 3),
            Y = round(Y, 3),
            Z = round(Z, 3))
-  out_ALL = SummarizedActigraphy::calculate_measures(
+  out = SummarizedActigraphy::calculate_measures(
     df = acc_df, 
     fix_zeros = FALSE, # already imputed!
     dynamic_range = dynamic_range,
@@ -82,12 +82,12 @@ if (!file.exists(outfile)) {
     calculate_ac = TRUE,
     flag_data = FALSE,
     verbose = TRUE)
-  out_ALL = dplyr::rename(out_ALL, HEADER_TIME_STAMP = time)
+  out = dplyr::rename(out, HEADER_TIME_STAMP = time)
   
   # # @MK on Jan 14, 2020: 
-  # # adding the belows line to address issue with MIMSunit package that allows 
+  # # adding the below line to address issue with MIMSunit package that allows 
   # # negative values in the output, see issue: https://github.com/mHealthGroup/MIMSunit/issues/21
-  # out_ALL0$MIMS_UNIT[out_ALL0$MIMS_UNIT < 0] <- 0
+  # out$MIMS_UNIT[out0$MIMS_UNIT < 0] <- 0
   
   # ENMO 
   # > The ENMO at time t is defined as max [r(t) – 1, 0]. 
@@ -104,11 +104,11 @@ if (!file.exists(outfile)) {
   #   )
   # 
   # # combine partial results into final data frame 
-  # out_ALL = full_join(out_ALL0, out_ENMO, by = "HEADER_TIME_STAMP")
+  # out = full_join(out, out_ENMO, by = "HEADER_TIME_STAMP")
   
   # ------------------------------------------------------------------------------
   # save to file
   
-  saveRDS(out_ALL, outfile, compress = "xz")
+  saveRDS(out, outfile, compress = "xz")
   message("Saved output.")
 }
