@@ -28,17 +28,23 @@ options(digits.secs = 3)
 
 # source util functions
 
+fnames = list.files(path = here::here("mats"), full.names = TRUE, pattern = "[.]mat")
+outfiles = here::here("open_measures", 
+                      paste0(sub("RAW[.]mat", "", basename(fnames)), 
+                             "_interpolated_OSM.rds"))
+
+
 # define input file name (specific to array job index)
 ifile =  as.numeric(Sys.getenv("SGE_TASK_ID"))
 if (is.na(ifile)) {
   ifile = 1
 }
-fnames = list.files(path = here::here("mats"), full.names = TRUE, pattern = "[.]mat")
+
 fname = fnames[ifile]
 id = sub("RAW[.]mat", "", basename(fname))
 message(fname)
 # define output file name
-outfile = here::here("open_source_measures", paste0(id, "_interpolated_OSM.rds"))
+outfile = here::here("open_measures", paste0(id, "_interpolated_OSM.rds"))
 
 # read raw accelerometry data .mat file
 if (!file.exists(outfile)) {
@@ -65,22 +71,23 @@ if (!file.exists(outfile)) {
     df = acc_df, verbose = TRUE, dynamic_range = dynamic_range)
   # round or not round?
   acc_df = acc_df %>% 
-    mutate(X = round(X, 3),
+    dplyr::mutate(X = round(X, 3),
            Y = round(Y, 3),
            Z = round(Z, 3))
-  out_ALL = SummarizedActigraphy::calculate_measures(
+  out = SummarizedActigraphy::calculate_measures(
     df = acc_df, 
     fix_zeros = FALSE, # already imputed!
     dynamic_range = dynamic_range,
     calculate_mims = TRUE,
+    calculate_ac = TRUE,
     flag_data = FALSE,
     verbose = TRUE)
-  out_ALL = dplyr::rename(out_ALL, HEADER_TIME_STAMP = time)
+  out = dplyr::rename(out, HEADER_TIME_STAMP = time)
   
   # # @MK on Jan 14, 2020: 
-  # # adding the belows line to address issue with MIMSunit package that allows 
+  # # adding the below line to address issue with MIMSunit package that allows 
   # # negative values in the output, see issue: https://github.com/mHealthGroup/MIMSunit/issues/21
-  # out_ALL0$MIMS_UNIT[out_ALL0$MIMS_UNIT < 0] <- 0
+  # out$MIMS_UNIT[out0$MIMS_UNIT < 0] <- 0
   
   # ENMO 
   # > The ENMO at time t is defined as max [r(t) – 1, 0]. 
@@ -97,11 +104,11 @@ if (!file.exists(outfile)) {
   #   )
   # 
   # # combine partial results into final data frame 
-  # out_ALL = full_join(out_ALL0, out_ENMO, by = "HEADER_TIME_STAMP")
+  # out = full_join(out, out_ENMO, by = "HEADER_TIME_STAMP")
   
   # ------------------------------------------------------------------------------
   # save to file
   
-  saveRDS(out_ALL, outfile)
+  saveRDS(out, outfile, compress = "xz")
   message("Saved output.")
 }
