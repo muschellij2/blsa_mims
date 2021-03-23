@@ -127,6 +127,8 @@ read_acc_mat = function(mat, ..., check_names = TRUE) {
   L$fs = c(L$fs)
   srate = L$fs
   L$Xi$HEADER_TIME_STAMP = start_date + (seq(0, nrow(L$Xi) - 1)/srate)
+  attr(L$Xi, "sample_rate") = srate
+  attr(L$Xi, "dynamic_range") = get_dynamic_range(L$hed)
   L
 }
 
