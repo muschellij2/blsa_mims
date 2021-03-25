@@ -7,8 +7,8 @@
 #' 
 #' cd $mims
 #' cd code/data_analysis
-#' Rnosave 2021-03-25-get_measures_mapping_boot_sensitivity.R -t 1-3 -N JOB_sensit
-#' Rnosave 2021-03-25-get_measures_mapping_boot_sensitivity.R -l mem_free=30G,h_vmem=30G,h_stack=256M -t 1-3 -N JOB_sensit
+#' Rnosave 2021-03-25-get_measures_mapping_threshold_sensitivity.R -t 1-3 -N JOB_sensit
+#' Rnosave 2021-03-25-get_measures_mapping_threshold_sensitivity.R -l mem_free=30G,h_vmem=30G,h_stack=256M -t 1-3 -N JOB_sensit
 
 
 # rm(list = ls())
