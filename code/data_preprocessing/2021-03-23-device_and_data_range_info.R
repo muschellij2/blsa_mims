@@ -126,3 +126,5 @@ for (fidx in 1:fnames_l){  # fidx <- 1
 
 # save final results to file 
 saveRDS(df, paste0(here::here(), "/results/2021-03-23-device_and_data_range_info.rds"))
+
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-23-device_and_data_range_info.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-23-device_and_data_range_info.rds

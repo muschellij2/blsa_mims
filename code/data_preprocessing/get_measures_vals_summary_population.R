@@ -3,10 +3,10 @@
 #' - /code/data_preprocesing/prepare_measures_masterfile.R
 #' 
 #' input data file: 
-#' - /data_processed/2021-03-03-measures_masterfile.rds
+#' - /data_processed/2021-03-25-measures_masterfile.rds
 #' 
 #' out file: 
-#' - /results/2021-03-03-measures_vals_summary_population.rds
+#' - /results/2021-03-25-measures_vals_summary_population.rds
 #' 
 #' use: 
 #' cd /dcl01/smart/data/activity/blsa_mims
@@ -29,12 +29,8 @@ get_vals_summary <- function(vec){
 }
 
 # read minute-level measures master file
-dat_fpath <- paste0(here::here(), "/data_processed/2021-03-03-measures_masterfile.rds")
+dat_fpath <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile.rds")
 dat <- readRDS(dat_fpath) %>% filter(wear_and_valid_flag == 1)
-dim(dat)
-# Jan 18, 2021: 5791560      10
-# Feb 25, 2021: 6147240      10
-# Mar 3,  2021: 6137941      12
 
 val_summary_AC   <- get_vals_summary(dat$AC)
 val_summary_MIMS <- get_vals_summary(dat$MIMS)
@@ -56,8 +52,8 @@ rownames(d_val_summary_all) <- metric_name_vec
 d_val_summary_all
 
 # save as data frame
-fout_path <- paste0(here::here(), "/results/2021-03-03-measures_vals_summary_population.rds")
+fout_path <- paste0(here::here(), "/results/2021-03-25-measures_vals_summary_population.rds")
 saveRDS(d_val_summary_all, fout_path)
 
-
+# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-25-measures_vals_summary_population.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-25-measures_vals_summary_population.rds
 

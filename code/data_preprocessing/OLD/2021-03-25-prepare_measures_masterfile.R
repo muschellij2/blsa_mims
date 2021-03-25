@@ -17,7 +17,7 @@
 #' - /covariates/mastervisit.rdata
 #' 
 #' out file: 
-#' - /data_processed/2021-03-25-measures_masterfile.rds
+#' - /data_processed/2021-03-03-measures_masterfile.rds
 #' 
 #' Notes: 
 #' - use: cd /dcl01/smart/data/activity/blsa_mims
@@ -138,27 +138,28 @@ dim(fpaths_df_1stvisit_0)
 dim(fpaths_df_1stvisit_1)
 # [1] 773  12
 
-# filter to keep only these who has masterdemog and mastervisit datas
-fpaths_df_1stvisit_2 <-  
+# file_id (name prefix from acc files) coverage among (a) masterdemog, (b) mastervisit
+fpaths_df_1stvisit_1 %>%
+  group_by(entry_masterdemog, entry_mastervisit) %>%
+  summarize(cnt = n()) %>%
+  arrange(cnt)
+#   entry_masterdemog entry_mastervisit   cnt
+#                <dbl>             <dbl> <int>
+# 1                 0                 0     3
+# 2                 1                 0    12
+# 3                 1                 1   758
+
+# check out the name of missing files
+fpaths_df_1stvisit_1 %>%
+  filter(entry_masterdemog * entry_mastervisit == 0) %>%
+  select(file_id, entry_masterdemog, entry_mastervisit) %>%
+  arrange(entry_mastervisit, entry_masterdemog)
+
+# filter to prepare final set of file_id to interate over 
+fpaths_df_1stvisit <-  
   fpaths_df_1stvisit_1 %>% 
   filter(entry_mastervisit == 1, entry_masterdemog == 1)
 
-
-# @MK: Added Mar 25, 2021
-# filter to keep only these files which have sensor sampling rate 80 Hz
-device_info_df  <- readRDS(paste0(here::here(), "/results/2021-03-23-device_and_data_range_info.rds"))
-device_info_vec <- device_info_df %>%
-  mutate(
-    file_id = gsub("RAW.mat", "", fname),
-    file_id_date = stringr::str_extract(string = file_id, pattern = "(?<=\\().*(?=\\))"),
-    file_id_date = as.Date(file_id_date)
-  ) %>% 
-  filter(srate == 80) %>%
-  pull(file_id) 
-fpaths_df_1stvisit_3 <-  fpaths_df_1stvisit_2 %>% filter(file_id %in% device_info_vec)
-
-# final data set
-fpaths_df_1stvisit <- fpaths_df_1stvisit_3
 dim(fpaths_df_1stvisit)
 length(unique(fpaths_df_1stvisit$subj_id)) 
 # Jan 15, 2021: 772
@@ -166,7 +167,6 @@ length(unique(fpaths_df_1stvisit$subj_id))
 # Jan 19, 2021: 758
 # Feb 25, 2021: 758
 # Mar 3,  2021: 758
-# Mar 25, 2021: 682
 
 
 # ------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ length(unique(fpaths_df_1stvisit$subj_id))
 out_dt_list <- vector(mode = "list", length = nrow(fpaths_df_1stvisit))
   
 # iterate over participants (1st visit only)
-for (i in 1:nrow(fpaths_df_1stvisit)){ # i <-  1
+for (i in 1:nrow(fpaths_df_1stvisit)){ # i <-  502 # which(fpaths_df_1stvisit$subj_id == 5997)
   print(paste0("i: ", i))
   file_id   <- fpaths_df_1stvisit[i, "file_id"]
   subj_id   <- fpaths_df_1stvisit[i, "subj_id"]
@@ -228,32 +228,37 @@ for (i in 1:nrow(fpaths_df_1stvisit)){ # i <-  1
 }
 
 out_df <- do.call(rbind, out_dt_list)
+str(out_df)
 out_df <- out_df %>% 
   dplyr::select(file_id, subj_id, visit_id,
                 HEADER_TIME_STAMP, 
                 wear_flag, valid_flag, wear_and_valid_flag,
-                AC, MIMS, MAD, ENMO, AI) %>%
-  as.data.frame()
+                AC, MIMS, MAD, ENMO, AI) 
 
 dim(out_df)
 # Jan 15, 2021: 6225000       9
 # Jan 18, 2021: 5791560      10
-# Jan 19, 2021: 6147240      
-# Feb 25, 2021: 6147240      12
-# Mar 25, 2021: 5566920      12 
+# Jan 19, 2021: 6147240      1
+# Feb 25, 2021: 6147240      1
+# Feb 25, 2021: 6147240      1
 
 length(unique(out_df$file_id))
 # Jan 19, 2021: 721
 # Feb 25, 2021: 721
 # Mar 3,  2021: 721
-# Mar 25, 2021: 655 
 
 # save as data frame
 # out_df_fpath <- paste0(here::here(), "/data_processed/2021-01-18-measures_masterfile.rds")
 # out_df_fpath <- paste0(here::here(), "/data_processed/2021-01-19-measures_masterfile.rds")
 # out_df_fpath <- paste0(here::here(), "/data_processed/2021-02-25-measures_masterfile.rds")
-# out_df_fpath <- paste0(here::here(), "/data_processed/2021-03-03-measures_masterfile.rds")
-out_df_fpath <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile.rds")
+out_df_fpath <- paste0(here::here(), "/data_processed/2021-03-03-measures_masterfile.rds")
 saveRDS(out_df, out_df_fpath)
+
+# print some stats
+out_df %>% 
+  group_by(wear_flag, valid_flag, wear_and_valid_flag) %>%
+  summarise(cnt = n())
+
+
 
 
