@@ -62,7 +62,7 @@ for (w_tmp in weight_grid){ # w_tmp <- weight_grid[1]
   x0 <- c(1, 1853, 2303)
   y0 <- 
     thresh_df %>% 
-    dplyr::filter(AC_thresh == x0, measure_name == "MIMS") %>% 
+    dplyr::filter(AC_thresh %in% x0, measure_name == "MIMS") %>% 
     dplyr::arrange(AC_thresh) %>%
     dplyr::pull(measure_thresh_grid)
   
@@ -91,9 +91,11 @@ for (w_tmp in weight_grid){ # w_tmp <- weight_grid[1]
   # ------------------------------------------------------------------------------
   # ENMO 
   x0 <- c(1, 1853, 2303)
-  y0 <- thresh_df %>% filter(AC_thresh == x0, measure_name == "ENMO") %>% 
-    arrange(AC_thresh) %>%
-    pull(measure_thresh_grid)
+  y0 <- 
+    thresh_df %>% 
+    dplyr::filter(AC_thresh %in% x0, measure_name == "ENMO") %>% 
+    dplyr::arrange(AC_thresh) %>%
+    dplyr::pull(measure_thresh_grid)
   
   dat_acc_AUGUM <- dat_acc
   dat_acc_AUGUM <- rbind(dat_acc_AUGUM[1:3, ], dat_acc_AUGUM)
@@ -120,9 +122,11 @@ for (w_tmp in weight_grid){ # w_tmp <- weight_grid[1]
   # ------------------------------------------------------------------------------
   # MAD 
   x0 <- c(1, 1853, 2303)
-  y0 <- thresh_df %>% filter(AC_thresh == x0, measure_name == "MAD") %>% 
-    arrange(AC_thresh) %>%
-    pull(measure_thresh_grid)
+  y0 <- 
+    thresh_df %>% 
+    dplyr::filter(AC_thresh %in% x0, measure_name == "MAD") %>% 
+    dplyr::arrange(AC_thresh) %>%
+    dplyr::pull(measure_thresh_grid)
   
   dat_acc_AUGUM <- dat_acc
   dat_acc_AUGUM <- rbind(dat_acc_AUGUM[1:3, ], dat_acc_AUGUM)
@@ -149,9 +153,11 @@ for (w_tmp in weight_grid){ # w_tmp <- weight_grid[1]
   # ------------------------------------------------------------------------------
   # AI 
   x0 <- c(1, 1853, 2303)
-  y0 <- thresh_df %>% filter(AC_thresh == x0, measure_name == "AI") %>% 
-    arrange(AC_thresh) %>%
-    pull(measure_thresh_grid)
+  y0 <- 
+    thresh_df %>% 
+    dplyr::filter(AC_thresh %in% x0, measure_name == "AI") %>% 
+    dplyr::arrange(AC_thresh) %>%
+    dplyr::pull(measure_thresh_grid)
   
   dat_acc_AUGUM <- dat_acc
   dat_acc_AUGUM <- rbind(dat_acc_AUGUM[1:3, ], dat_acc_AUGUM)
