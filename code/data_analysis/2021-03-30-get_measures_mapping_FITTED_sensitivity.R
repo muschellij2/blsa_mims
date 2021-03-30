@@ -3,7 +3,7 @@
 #' 
 #' cd $mims
 #' cd code/data_analysis
-#' Rnosave 2021-03-29-get_measures_mapping_FITTED_sensitivity.R -l mem_free=20G,h_vmem=20G,h_stack=256M -N JOB_fit_sens
+#' Rnosave 2021-03-30-get_measures_mapping_FITTED_sensitivity.R -l mem_free=20G,h_vmem=20G,h_stack=256M -N JOB_fit_sens
 
 rm(list = ls())
 library(tidyverse)
@@ -61,7 +61,7 @@ for (w_tmp in weight_grid){ # w_tmp <- weight_grid[1]
   # MIMS 
   x0 <- c(1, 1853, 2303)
   y0 <- 
-    dplyr::thresh_df %>% 
+    thresh_df %>% 
     dplyr::filter(AC_thresh == x0, measure_name == "MIMS") %>% 
     dplyr::arrange(AC_thresh) %>%
     dplyr::pull(measure_thresh_grid)
