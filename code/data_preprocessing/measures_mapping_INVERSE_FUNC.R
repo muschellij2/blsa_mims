@@ -1,10 +1,9 @@
 
-#' Script reads precomputed GAM fitting results and uses it for implementing 
+#' Script reads pre-computed GAM fitting results and uses it for implementing 
 #' the mappings: 
 #' 
 #' mapping g: {MIMS, ENMO, MAD, AI} -> AC
 #' mapping f: AC -> {MIMS, ENMO, MAD, AI}
-
 
 
 rm(list = ls())
