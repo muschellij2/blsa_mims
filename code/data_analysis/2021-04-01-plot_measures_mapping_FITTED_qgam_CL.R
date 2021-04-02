@@ -29,7 +29,8 @@ dat_list <- lapply(fpaths, readRDS)
 dat_fitted <- 
   dat_list[[1]] %>% 
   left_join(dat_list[[2]], by = "AC") %>% 
-  left_join(dat_list[[3]], by = "AC")
+  left_join(dat_list[[3]], by = "AC") %>% 
+  left_join(dat_list[[4]], by = "AC")
 
 fpath_tmp <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile_winsorized.rds")
 dat_acc <- readRDS(fpath_tmp) %>% as.data.frame()
@@ -57,15 +58,16 @@ dim(dat_acc_plt)
 dat_fitted_plt <- 
   dat_fitted %>% 
   filter(AC < AC_max) %>%
-  # select(AC, MIMS = MIMS_fitted, MAD = MAD_fitted, ENMO = ENMO_fitted, AI = AI_fitted) %>%
-  select(AC, MAD = MAD_fitted, ENMO = ENMO_fitted, AI = AI_fitted) %>%
+  select(AC, MIMS = MIMS_fitted, MAD = MAD_fitted, ENMO = ENMO_fitted, AI = AI_fitted) %>%
+  # select(AC, MAD = MAD_fitted, ENMO = ENMO_fitted, AI = AI_fitted) %>%
   pivot_longer(cols = -AC) %>%
   mutate(name_fct = factor(name, levels = names_levels))
 head(dat_fitted_plt)
 dim(dat_fitted_plt)
 
 plt_list <- list()
-for (i in 2 : length(names_levels)){ # i <- 1
+for (i in 1 : length(names_levels)){ # i <- 1
+# for (i in 2 : length(names_levels)){ # i <- 1
   name_tmp  <- names_levels[i]
   color_tmp <- names_colors[i]
   dat_acc_plt_i    <- dat_acc_plt %>% filter(name_fct == name_tmp)

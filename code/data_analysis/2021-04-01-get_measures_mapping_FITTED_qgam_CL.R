@@ -29,7 +29,7 @@ AC_seq <- seq(from = 0, to = (1000 * 50), by = 1)
 newdata <- data.frame(AC = AC_seq)
 
 # model params
-k <- 20
+k <- 10
 
 # MIMS 
 if (idx == 1){
