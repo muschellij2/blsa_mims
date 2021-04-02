@@ -34,7 +34,7 @@ newdata <- data.frame(AC = AC_seq)
 
 # model params
 k <- 10
-ncores_tmp <- min(c(parallel::detectCores() - 1, 11))
+ncores_tmp <- min(c(parallel::detectCores() - 1, 8))
 
 # MIMS 
 if (idx == 1){
