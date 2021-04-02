@@ -16,7 +16,7 @@ library(parallel)
 options(scipen=999)
 
 idx  =  as.numeric(Sys.getenv("SGE_TASK_ID")) # idx <- 1
-message(paste0("ncores = parallel::detectCores(): ", ncores = parallel::detectCores()))
+message(paste0("ncores = parallel::detectCores(): ", parallel::detectCores()))
 
 
 # read minute-level measures data (winsorized)
