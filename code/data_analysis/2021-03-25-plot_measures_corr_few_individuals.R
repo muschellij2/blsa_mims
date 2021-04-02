@@ -9,12 +9,82 @@
 
 rm(list = ls())
 library(tidyverse)
-library(gridExtra)
 library(ggsci)
+library(cowplot)
+
+names_levels <- c("MIMS", "ENMO", "MAD", "AI")
+names_colors <- c(pal_futurama()(4))
 
 
 # ------------------------------------------------------------------------------
 # read data 
+
+fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.rds")
+dat_fitted <- readRDS(fpath_tmp)
+head(dat_fitted)
+
+fpath_tmp <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile_winsorized.rds")
+dat_acc <- readRDS(fpath_tmp) %>% as.data.frame()
+dim(dat_acc)
+
+
+# ------------------------------------------------------------------------------
+# plot 1: main manuscript part
+
+# AC_max <- max(dat_acc$AC)
+AC_max <- 10000
+
+# define plot data 
+dat_acc_plt <- 
+  dat_acc %>%
+  filter(AC < AC_max) %>%
+  filter(row_number() %% 500 == 0) %>%
+  filter(AC > 0) %>%
+  select(AC, MIMS, ENMO, MAD, AI) %>%
+  pivot_longer(cols = -AC) %>%
+  mutate(name_fct = factor(name, levels = names_levels))
+head(dat_acc_plt)
+dim(dat_acc_plt)
+
+dat_fitted_plt <- 
+  dat_fitted %>% 
+  filter(AC < AC_max) %>%
+  select(AC, MIMS = MIMS_fitted, MAD = MAD_fitted, ENMO = ENMO_fitted, AI = AI_fitted) %>%
+  pivot_longer(cols = -AC) %>%
+  mutate(name_fct = factor(name, levels = names_levels))
+head(dat_fitted_plt)
+dim(dat_fitted_plt)
+
+plt_list <- list()
+for (i in 1 : length(names_levels)){ # i <- 1
+  name_tmp  <- names_levels[i]
+  color_tmp <- names_colors[i]
+  dat_acc_plt_i    <- dat_acc_plt %>% filter(name_fct == name_tmp)
+  dat_fitted_plt_i <- dat_fitted_plt %>% filter(name_fct == name_tmp)
+  plt <- 
+    ggplot(dat_acc_plt_i, aes(x = AC, y = value)) + 
+    geom_point(size = 0.1, alpha = 0.1, color = color_tmp) + 
+    geom_line(data = dat_fitted_plt_i, aes(x = AC, y = value, group = 1), inherit.aes = FALSE) + 
+    labs(x = "ActiGraph AC", y = paste0(name_tmp, " fitted"))
+  plt_list[[length(plt_list) + 1]] <- plt
+}
+
+plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
+plt
+
+
+
+  
+
+
+
+plt <- do.call("arrangeGrob", c(plt_list, ncol = 3)) 
+plt_path <- paste0(here::here(), "/results_figures/measures_corr_plot_few_ts.png")
+ggsave(filename = plt_path, plot = plt, width = 8, height = 8) 
+
+
+
+
 
 # read accelerometry measures master file
 acc_corr_fpath <- paste0(here::here(), "/results/2021-03-25-correlations_between_measures.rds")
