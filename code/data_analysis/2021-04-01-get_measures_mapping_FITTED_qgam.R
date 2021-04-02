@@ -43,7 +43,7 @@ newdata$MIMS_fitted <- predict(fit_unconstr_MIMS, newdata)
 
 # ENMO 
 t1 <- Sys.time()
-fit_unconstr_ENMO <- gam(ENMO ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+fit_unconstr_ENMO <- qgam(ENMO ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                          qu = 0.5,
                          multicore = TRUE, 
                          ncores = parallel::detectCores() - 1)
@@ -53,7 +53,7 @@ t2 - t1
 
 # MAD 
 t1 <- Sys.time()
-fit_unconstr_MAD <- gam(MAD ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+fit_unconstr_MAD <- qgam(MAD ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                         qu = 0.5,
                         multicore = TRUE, 
                         ncores = parallel::detectCores() - 1)
@@ -63,7 +63,7 @@ t2 - t1
 
 # AI 
 t1 <- Sys.time()
-fit_unconstr_AI <- gam(AI ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+fit_unconstr_AI <- qgam(AI ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                        qu = 0.5,
                        multicore = TRUE, 
                        ncores = parallel::detectCores() - 1)

@@ -3,9 +3,11 @@ args = commandArgs(trailingOnly = TRUE)
 
 #' Notes: 
 #' 
+#' qacct -j jobID
+#' 
 #' cd $mims
 #' cd code/data_analysis
-#' Rnosave 2021-04-01-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 1-4 -N JOB_qgam
+#' Rnosave 2021-04-01-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=100G,h_vmem=100G,h_stack=256M -t 1-4 -N JOB_qgam
 
 library(tidyverse)
 library(mgcv)
@@ -14,6 +16,8 @@ library(parallel)
 options(scipen=999)
 
 idx  =  as.numeric(Sys.getenv("SGE_TASK_ID")) # idx <- 1
+message(paste0("ncores = parallel::detectCores(): ", ncores = parallel::detectCores()))
+
 
 # read minute-level measures data (winsorized)
 dat_acc_fpath <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile_winsorized.rds")
@@ -30,6 +34,7 @@ newdata <- data.frame(AC = AC_seq)
 
 # model params
 k <- 10
+ncores_tmp <- min(c(parallel::detectCores() - 1, 11))
 
 # MIMS 
 if (idx == 1){
@@ -38,7 +43,7 @@ if (idx == 1){
   fit_unconstr_MIMS <- qgam(MIMS ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                             qu = 0.5,
                             multicore = TRUE, 
-                            ncores = parallel::detectCores() - 1)
+                            ncores = ncores_tmp)
   t2 <- Sys.time()
   message(t2 - t1)
   newdata$MIMS_fitted <- predict(fit_unconstr_MIMS, newdata)
@@ -51,7 +56,7 @@ if (idx == 2){
   fit_unconstr_ENMO <- qgam(ENMO ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                            qu = 0.5,
                            multicore = TRUE, 
-                           ncores = parallel::detectCores() - 1)
+                           ncores = ncores_tmp)
   newdata$ENMO_fitted <- predict(fit_unconstr_ENMO, newdata)
   t2 <- Sys.time()
   message(t2 - t1)
@@ -64,7 +69,7 @@ if (idx == 3){
   fit_unconstr_MAD <- qgam(MAD ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                           qu = 0.5,
                           multicore = TRUE, 
-                          ncores = parallel::detectCores() - 1)
+                          ncores = ncores_tmp)
   newdata$MAD_fitted <- predict(fit_unconstr_MAD, newdata)
   t2 <- Sys.time()
   message(t2 - t1)
@@ -77,7 +82,7 @@ if (idx == 4){
   fit_unconstr_AI <- qgam(AI ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                          qu = 0.5,
                          multicore = TRUE, 
-                         ncores = parallel::detectCores() - 1)
+                         ncores = ncores_tmp)
   newdata$AI_fitted <- predict(fit_unconstr_AI, newdata)
   t2 <- Sys.time()
   message(t2 - t1)
@@ -89,6 +94,8 @@ message("COMPLETED.")
 # Save data 
 fpath_tmp <- paste0(here::here(), "/results/mapping_between_measures_FITTED_qgam_", idx,  ".rds")
 saveRDS(newdata, fpath_tmp)
+
+# 
 
 
 
