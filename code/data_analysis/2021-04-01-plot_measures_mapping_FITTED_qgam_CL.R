@@ -11,15 +11,25 @@ library(cowplot)
 library(ggsci)
 options(scipen=999)
 
+# get /dcl01/smart/data/activity/blsa_mims/results/mapping_between_measures_FITTED_qgam_1.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/mapping_between_measures_FITTED_qgam_1.rds
+# get /dcl01/smart/data/activity/blsa_mims/results/mapping_between_measures_FITTED_qgam_2.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/mapping_between_measures_FITTED_qgam_2.rds
+# get /dcl01/smart/data/activity/blsa_mims/results/mapping_between_measures_FITTED_qgam_3.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/mapping_between_measures_FITTED_qgam_3.rds
+# get /dcl01/smart/data/activity/blsa_mims/results/mapping_between_measures_FITTED_qgam_4.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/mapping_between_measures_FITTED_qgam_4.rds
+
+
 names_levels <- c("MIMS", "ENMO", "MAD", "AI")
 names_colors <- pal_futurama()(4)
 
 # ------------------------------------------------------------------------------
 # read data 
 
-fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.rds")
-dat_fitted <- readRDS(fpath_tmp) %>% as.data.frame()
-dim(dat_fitted)
+fpaths <- list.files(paste0(here::here(), "/results"), full.names = TRUE)
+fpaths <- fpaths[grepl("mapping_between_measures_FITTED_qgam", fpaths)]
+dat_list <- lapply(fpaths, readRDS)
+dat_fitted <- 
+  dat_list[[1]] %>% 
+  left_join(dat_list[[2]], by = "AC") %>% 
+  left_join(dat_list[[3]], by = "AC")
 
 fpath_tmp <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile_winsorized.rds")
 dat_acc <- readRDS(fpath_tmp) %>% as.data.frame()
