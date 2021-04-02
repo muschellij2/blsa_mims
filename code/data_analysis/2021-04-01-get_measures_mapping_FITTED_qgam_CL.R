@@ -29,7 +29,7 @@ AC_seq <- seq(from = 0, to = (1000 * 50), by = 1)
 newdata <- data.frame(AC = AC_seq)
 
 # model params
-k <- 30
+k <- 20
 
 # MIMS 
 if (idx == 1){
@@ -48,7 +48,7 @@ if (idx == 1){
 if (idx == 2){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_ENMO <- gam(ENMO ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+  fit_unconstr_ENMO <- qgam(ENMO ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                            qu = 0.5,
                            multicore = TRUE, 
                            ncores = parallel::detectCores() - 1)
@@ -61,7 +61,7 @@ if (idx == 2){
 if (idx == 3){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_MAD <- gam(MAD ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+  fit_unconstr_MAD <- qgam(MAD ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                           qu = 0.5,
                           multicore = TRUE, 
                           ncores = parallel::detectCores() - 1)
@@ -74,7 +74,7 @@ if (idx == 3){
 if (idx == 4){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_AI <- gam(AI ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+  fit_unconstr_AI <- qgam(AI ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
                          qu = 0.5,
                          multicore = TRUE, 
                          ncores = parallel::detectCores() - 1)
