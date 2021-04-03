@@ -7,7 +7,7 @@ args = commandArgs(trailingOnly = TRUE)
 #' 
 #' cd $mims
 #' cd code/data_analysis
-#' Rnosave 2021-04-01-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 1-4 -N JOB_qgam
+#' Rnosave 2021-04-03-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 1-4 -N JOB_qgam
 
 library(tidyverse)
 library(mgcv)
@@ -41,7 +41,9 @@ ncores_tmp <- min(c(parallel::detectCores() - 1, 12))
 if (idx == 1){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_MIMS <- qgam(MIMS ~ s(AC, k = k, bs = "cr"), data = dat_acc, knots = list(AC = knots_new), 
+  fit_unconstr_MIMS <- qgam(MIMS ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+                            argGam = list(knots=list(AC = knots_new)), 
+                            err = 0.1, 
                             qu = 0.5,
                             multicore = TRUE, 
                             ncores = ncores_tmp)
@@ -54,8 +56,10 @@ if (idx == 1){
 if (idx == 2){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_ENMO <- qgam(ENMO ~ s(AC, k = k, bs = "cr"), data = dat_acc, knots = list(AC = knots_new), 
-                           qu = 0.5,
+  fit_unconstr_ENMO <- qgam(ENMO ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+                            argGam = list(knots=list(AC = knots_new)), 
+                            err = 0.1,  
+                            qu = 0.5,
                            multicore = TRUE, 
                            ncores = ncores_tmp)
   newdata$ENMO_fitted <- predict(fit_unconstr_ENMO, newdata)
@@ -67,7 +71,9 @@ if (idx == 2){
 if (idx == 3){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_MAD <- qgam(MAD ~ s(AC, k = k, bs = "cr"), data = dat_acc, knots = list(AC = knots_new), 
+  fit_unconstr_MAD <- qgam(MAD ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+                           argGam = list(knots=list(AC = knots_new)), 
+                           err = 0.1,  
                           qu = 0.5,
                           multicore = TRUE, 
                           ncores = ncores_tmp)
@@ -80,8 +86,10 @@ if (idx == 3){
 if (idx == 4){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_AI <- qgam(AI ~ s(AC, k = k, bs = "cr"), data = dat_acc, knots = list(AC = knots_new), 
-                         qu = 0.5,
+  fit_unconstr_AI <- qgam(AI ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+                          argGam = list(knots=list(AC = knots_new)), 
+                          err = 0.1,  
+                          qu = 0.5,
                          multicore = TRUE, 
                          ncores = ncores_tmp)
   newdata$AI_fitted <- predict(fit_unconstr_AI, newdata)
