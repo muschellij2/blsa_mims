@@ -29,7 +29,7 @@ dat_acc <- dat_acc %>% dplyr::filter(wear_and_valid_flag == 1)
 dat_acc <- dat_acc %>% dplyr::filter(AC > 0)
 
 # newdata objects 
-AC_seq <- seq(from = 0, to = (1000 * 20), by = 1)
+AC_seq <- seq(from = 0, to = (1000 * 50), by = 1)
 newdata <- data.frame(AC = AC_seq)
 
 # model params
