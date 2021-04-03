@@ -20,6 +20,15 @@ options(scipen=999)
 names_levels <- c("MIMS", "ENMO", "MAD", "AI")
 names_colors <- pal_futurama()(4)
 
+theme_ggpr <- function(){ 
+  font <- "Arial"  
+  theme_minimal(base_size = 12) %+replace%    
+    theme(panel.grid.major = element_line(size = 0.3),  
+          panel.grid.minor = element_blank(),
+          plot.title = element_text(size=12))}
+theme_set(theme_ggpr())
+
+
 # ------------------------------------------------------------------------------
 # read data 
 
@@ -31,17 +40,29 @@ dat_fitted <-
   left_join(dat_list[[2]], by = "AC") %>% 
   left_join(dat_list[[3]], by = "AC") %>% 
   left_join(dat_list[[4]], by = "AC")
+head(dat_fitted)
+# AC  MIMS_fitted ENMO_fitted  MAD_fitted AI_fitted
+# 1   0 -0.039158214 0.001127495 0.003606874 0.2768414
+# 2   1 -0.031895586 0.001139830 0.003627042 0.2787024
+# 3   2 -0.024632958 0.001152164 0.003647209 0.2805634
+# 4   3 -0.017370334 0.001164499 0.003667377 0.2824244
+# 5   4 -0.010107719 0.001176834 0.003687545 0.2842854
+# 6   5 -0.002845116 0.001189168 0.003707713 0.2861464
+# 7   6  0.004417470 0.001201503 0.003727880 0.2880074
+# 8   7  0.011680035 0.001213838 0.003748048 0.2898684
+# 9   8  0.018942575 0.001226172 0.003768215 0.2917294
+# 10  9  0.026205086 0.001238507 0.003788383 0.2935904
 
 fpath_tmp <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile_winsorized.rds")
 dat_acc <- readRDS(fpath_tmp) %>% as.data.frame()
-dim(dat_acc)
+dim(dat_acc) 
 
 
 # ------------------------------------------------------------------------------
 # plot 1: main manuscript part
 
 # AC_max <- max(dat_acc$AC)
-AC_max <- 10000
+AC_max <- 15000
 
 # define plot data 
 dat_acc_plt <- 
@@ -82,4 +103,8 @@ for (i in 1 : length(names_levels)){ # i <- 1
 
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
+
+plt_path <- paste0(here::here(), "/results_figures/measures_mapping_fitted_qgam.png")
+ggsave(filename = plt_path, plot = plt, width = 8, height = 8) 
+
 

@@ -29,18 +29,19 @@ dat_acc <- dat_acc %>% dplyr::filter(wear_and_valid_flag == 1)
 dat_acc <- dat_acc %>% dplyr::filter(AC > 0)
 
 # newdata objects 
-AC_seq <- seq(from = 0, to = (1000 * 50), by = 1)
+AC_seq <- seq(from = 0, to = (1000 * 20), by = 1)
 newdata <- data.frame(AC = AC_seq)
 
 # model params
-k <- 10
-ncores_tmp <- min(c(parallel::detectCores() - 1, 8))
+k <- 8
+knots_new <- c(1,1315,2604,3916,5285,6914,11312,15708)
+ncores_tmp <- min(c(parallel::detectCores() - 1, 12))
 
 # MIMS 
 if (idx == 1){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_MIMS <- qgam(MIMS ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+  fit_unconstr_MIMS <- qgam(MIMS ~ s(AC, k = k, bs = "cr"), data = dat_acc, knots = list(AC = knots_new), 
                             qu = 0.5,
                             multicore = TRUE, 
                             ncores = ncores_tmp)
@@ -53,7 +54,7 @@ if (idx == 1){
 if (idx == 2){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_ENMO <- qgam(ENMO ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+  fit_unconstr_ENMO <- qgam(ENMO ~ s(AC, k = k, bs = "cr"), data = dat_acc, knots = list(AC = knots_new), 
                            qu = 0.5,
                            multicore = TRUE, 
                            ncores = ncores_tmp)
@@ -66,7 +67,7 @@ if (idx == 2){
 if (idx == 3){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_MAD <- qgam(MAD ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+  fit_unconstr_MAD <- qgam(MAD ~ s(AC, k = k, bs = "cr"), data = dat_acc, knots = list(AC = knots_new), 
                           qu = 0.5,
                           multicore = TRUE, 
                           ncores = ncores_tmp)
@@ -79,7 +80,7 @@ if (idx == 3){
 if (idx == 4){
   message(paste0("idx = ", idx))
   t1 <- Sys.time()
-  fit_unconstr_AI <- qgam(AI ~ s(AC, k = k, bs = "cr"), data = dat_acc, 
+  fit_unconstr_AI <- qgam(AI ~ s(AC, k = k, bs = "cr"), data = dat_acc, knots = list(AC = knots_new), 
                          qu = 0.5,
                          multicore = TRUE, 
                          ncores = ncores_tmp)
@@ -92,7 +93,7 @@ message("COMPLETED.")
 
 
 # Save data 
-fpath_tmp <- paste0(here::here(), "/results/mapping_between_measures_FITTED_qgam_", idx,  ".rds")
+fpath_tmp <- paste0(here::here(), "/results/2021-04-03-mapping_between_measures_FITTED_qgam_", idx,  ".rds")
 saveRDS(newdata, fpath_tmp)
 
 
