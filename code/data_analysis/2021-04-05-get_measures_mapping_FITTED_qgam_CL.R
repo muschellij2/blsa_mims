@@ -10,7 +10,7 @@ args = commandArgs(trailingOnly = TRUE)
 #' 
 #' cd $mims
 #' cd code/data_analysis
-#' Rnosave 2021-04-03-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 1-4 -N JOB_qgam
+#' Rnosave 2021-04-05-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 1-4 -N JOB_qgam
 
 library(tidyverse)
 library(mgcv)
@@ -36,8 +36,9 @@ AC_seq <- seq(from = 0, to = (1000 * 50), by = 1)
 newdata <- data.frame(AC = AC_seq)
 
 # model params
-k <- 8
-knots_new <- c(1,1315,2604,3916,5285,6914,11312,15708)
+k <- 10
+# knots_new <- c(1,1315,2604,3916,5285,6914,11312,15708)
+knots_new <- c(1, 1132, 2233, 3350, 4490, 5705, 7212, 10044, 12877, 15709)
 ncores_tmp <- min(c(parallel::detectCores() - 1, 12))
 
 # MIMS 
@@ -104,7 +105,7 @@ message("COMPLETED.")
 
 
 # Save data 
-fpath_tmp <- paste0(here::here(), "/results/2021-04-03-mapping_between_measures_FITTED_qgam_", idx,  ".rds")
+fpath_tmp <- paste0(here::here(), "/results/2021-04-05-mapping_between_measures_FITTED_qgam_", idx,  ".rds")
 saveRDS(newdata, fpath_tmp)
 
 
