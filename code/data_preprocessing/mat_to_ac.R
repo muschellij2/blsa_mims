@@ -38,6 +38,8 @@ if (is.na(ifile)) {
 
 fnames = sort(list.files(path = here::here("mats"), full.names = TRUE, 
                          pattern = "[.]mat"))
+outfiles = here::here("open_measures", paste0(
+  sub("RAW[.]mat", "", basename(fnames)), "_AChat.rds"))
 fname = fnames[ifile]
 id = sub("RAW[.]mat", "", basename(fname))
 message(fname)
