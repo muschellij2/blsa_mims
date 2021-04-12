@@ -11,7 +11,20 @@ library(tidyverse)
 library(data.table)
 
 # read data with GAM-fitted values
-fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.rds")
+
+# fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.rds")
+
+# fpaths <- list.files(paste0(here::here(), "/results"), full.names = TRUE)
+# fpaths <- fpaths[grepl("2021-04-05-mapping_between_measures_FITTED_qgam", fpaths)]
+# fpaths
+# dat_list <- lapply(fpaths, readRDS)
+# dat_fitted <- 
+#   dat_list[[1]] %>% 
+#   left_join(dat_list[[2]], by = "AC") %>% 
+#   left_join(dat_list[[3]], by = "AC") %>% 
+#   left_join(dat_list[[4]], by = "AC") 
+
+fpath_tmp <- paste0(here::here(), "/results_public/2021-04-07-mapping_between_measures_FITTED.rds")
 dat_fitted <- readRDS(fpath_tmp)
 
 

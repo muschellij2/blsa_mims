@@ -10,7 +10,7 @@ args = commandArgs(trailingOnly = TRUE)
 #' 
 #' cd $mims
 #' cd code/data_analysis
-#' Rnosave 2021-04-05-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 1-4 -N JOB_qgam
+#' Rnosave 2021-04-05-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 1-4 -N JOB_2qgam
 
 library(tidyverse)
 library(mgcv)

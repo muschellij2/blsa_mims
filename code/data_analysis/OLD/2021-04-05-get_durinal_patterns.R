@@ -1,38 +1,12 @@
 
-#' Notes: 
-#' 
-#' cd $mims
-#' cd code/data_analysis
-#' Rnosave 2021-04-01-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 1-4 -N JOB_qgam
-#' 
 #' (A) Smoothed 24-hour median activity counts per minute for each age group. 
 #' (B) Smoothed medians of 24-hour cumulative activity counts per day for each age group. 
 #' Groups: <60-year old (green), 60- to 67-year old (red), 68- to 74-year old (blue), ≥75-year old (orange).
 
-
 rm(list = ls())
 library(tidyverse)
-library(cowplot)
-library(ggsci)
 library(lubridate)
-library(scales)
-library(mgcv)
 options(scipen=999)
-
-names_levels <- c("MIMS", "ENMO", "MAD", "AI")
-names_colors <- pal_futurama()(4)
-
-# plot colors
-age_cat_colors <- c("darkgreen", "red", "blue", "orange")
-name_levels <- c("AC_hat_from_MIMS", "AC_hat_from_ENMO", "AC_hat_from_MAD", "AC_hat_from_AI")
-
-theme_ggpr <- function(){ 
-  font <- "Arial"  
-  theme_minimal(base_size = 12) %+replace%    
-    theme(panel.grid.major = element_line(size = 0.3),  
-          panel.grid.minor = element_blank(),
-          plot.title = element_text(size=12))}
-theme_set(theme_ggpr())
 
 
 # ------------------------------------------------------------------------------
@@ -63,56 +37,7 @@ dat_acc %>% group_by(age_cat2) %>% summarise(subj_id_cnt = n_distinct(subj_id))
 
 
 # ------------------------------------------------------------------------------
-# plot 1: smoothed mean 
-
-# aggregate 
-# aggregate 
-W <- 60 + 30
-filter_def <- seq(0, 1, length.out = W)
-filter_def <- sqrt((1/2 - abs(1/2 - filter_def)))
-filter_def <- filter_def / sum(filter_def)
-# plot(filter_def)
-# filter_def <- rep(1, W)/W
-
-plt_df <- 
-  dat_acc %>% 
-  select(AC, AC_hat_from_MIMS, AC_hat_from_ENMO, AC_hat_from_MAD, AC_hat_from_AI, 
-         age_cat = age_cat1, minute_idx, minute_label) %>%
-  group_by(age_cat, minute_idx, minute_label) %>%
-  summarize_all(mean) %>%
-  group_by(age_cat) %>%
-  arrange(age_cat, minute_idx, minute_label) %>%
-  mutate(across(all_of(c("AC", name_levels)), function(x) stats::filter(x, filter_def, circular = TRUE))) %>%
-  ungroup() 
-
-plt_df_L <- 
-  plt_df %>%
-  pivot_longer(cols = -c(age_cat, minute_idx, minute_label, AC)) %>%
-  mutate(name = factor(name, levels = name_levels))
-
-plt_list <- list()
-for (i in 1 : length(name_levels)){ # i <- 1
-  name_i  <- name_levels[i]
-  plt_df_L_i    <- plt_df_L %>% filter(name == name_i)
-  plt_i <- 
-    ggplot(plt_df_L_i, aes(x = minute_label, y = AC, color = age_cat, group = age_cat)) + 
-    geom_line(size = 3, alpha = 0.2) + 
-    scale_color_manual(values = age_cat_colors) + 
-    scale_y_continuous(limits = c(0, 3000)) +
-    scale_x_datetime(labels = date_format("%H:%M", tz = "UTC")) + 
-    labs(x = "Time", y = "AC per minute", title = name_i) + 
-    theme(legend.position = "none") + 
-    geom_line(data = plt_df_L_i, aes(x = minute_label, y = value, color = age_cat, group = age_cat))
-  plt_i
-  plt_list[[length(plt_list) + 1]] <- plt_i
-}
-plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
-plt
-
-
-
-# ------------------------------------------------------------------------------
-# plot 2: smoothed median 
+# plot : smoothed median 
 
 # aggregate 
 W <- 60 + 30
@@ -158,8 +83,8 @@ for (i in 1 : length(name_levels)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/replicate_physicalcliff_median_smoothed.png")
-ggsave(filename = plt_path, plot = plt, width = 8, height = 8) 
+plt_path <- paste0(here::here(), "/results_figures/2021-04-02-replicate_physicalcliff_median_smoothed.png")
+ggsave(filename = plt_path, plot = plt, width = 8, height = 6) 
 
 
 

@@ -1,10 +1,4 @@
 
-#' Notes: 
-#' 
-#' cd $mims
-#' cd code/data_analysis
-#' Rnosave 2021-04-01-get_measures_mapping_FITTED_qgam_CL.R -l mem_free=50G,h_vmem=50G,h_stack=256M -t 1-4 -N JOB_qgam
-
 rm(list = ls())
 library(tidyverse)
 library(cowplot)
@@ -25,9 +19,10 @@ theme_set(theme_ggpr())
 # ------------------------------------------------------------------------------
 # read data 
 
-fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.rds")
+fpath_tmp <- paste0(here::here(), "/results_public/2021-04-07-mapping_between_measures_FITTED.rds")
 dat_fitted <- readRDS(fpath_tmp) %>% as.data.frame()
 dim(dat_fitted)
+head(dat_fitted, 11) %>% round(5)
 
 fpath_tmp <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile_winsorized.rds")
 dat_acc <- readRDS(fpath_tmp) %>% as.data.frame()
@@ -37,8 +32,7 @@ dim(dat_acc)
 # ------------------------------------------------------------------------------
 # plot 1: main manuscript part
 
-AC_max <- max(dat_acc$AC)
-# AC_max <- 10000
+AC_max <- 15000
 
 # define plot data 
 dat_acc_plt <- 
@@ -79,7 +73,7 @@ for (i in 1 : length(names_levels)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/measures_mapping_fitted.png")
+plt_path <- paste0(here::here(), "/results_figures/2021-04-07-measures_mapping_fitted.png")
 ggsave(filename = plt_path, plot = plt, width = 8, height = 8) 
 
 
