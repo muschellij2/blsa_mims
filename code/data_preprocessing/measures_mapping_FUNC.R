@@ -27,6 +27,12 @@ library(data.table)
 fpath_tmp <- paste0(here::here(), "/results_public/2021-04-07-mapping_between_measures_FITTED.rds")
 dat_fitted <- readRDS(fpath_tmp)
 
+# Note: the above file can be downloaded with
+# github_url <- ("https://github.com/muschellij2/blsa_mims/blob/master/results_public/mapping_between_measures_FITTED.rds?raw=true")
+# destfile <- paste0(getwd(), "/mapping_between_measures_FITTED.rds")
+# download.file(github_url, destfile, method = "curl")
+
+
 
 # ------------------------------------------------------------------------------
 # mapping g: {MIMS, ENMO, MAD, AI} -> AC

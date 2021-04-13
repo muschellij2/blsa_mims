@@ -68,6 +68,9 @@ interview_SUB <-
 denom_cnt <- length(unique(measures_masterfile$subj_id))
 denom_cnt
 
+range(as.Date(measures_masterfile$HEADER_TIME_STAMP))
+# [1] "2015-07-18" "2019-01-17"
+
 
 # ------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------

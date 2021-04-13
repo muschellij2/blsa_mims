@@ -1,6 +1,7 @@
 
 rm(list = ls())
 library(tidyverse)
+library(data.table)
 library(mgcv)
 options(scipen=999)
 
@@ -40,8 +41,9 @@ t2 - t1
 # Time difference of 1.989121 mins
 
 # Save data 
-fpath_tmp <- paste0(here::here(), "/results_public/2021-04-07-mapping_between_measures_FITTED.rds")
-saveRDS(newdata, fpath_tmp)
+fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.txt")
+data.table::fwrite(newdata, fpath_tmp)
+# saveRDS(newdata, fpath_tmp)
 
 
 
