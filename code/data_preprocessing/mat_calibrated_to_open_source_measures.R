@@ -29,6 +29,10 @@ options(digits.secs = 3)
 # source util functions
 
 fnames = list.files(path = here::here("mats"), full.names = TRUE, pattern = "[.]mat")
+index = c(99, 542, 553, 593, 662, 671, 683, 690, 700, 714, 721, 728, 
+          768, 787, 794, 818, 825, 828, 830, 852, 867, 872, 882, 909, 917, 
+          965, 979, 1005, 1019, 1027, 1038, 1157, 1166, 1185, 1199, 1231)
+fnames = fnames[index]
 outfiles = here::here("open_measures", 
                       paste0(sub("RAW[.]mat", "", basename(fnames)), 
                              "_calibrated_OSM.rds"))
@@ -78,6 +82,7 @@ if (!file.exists(outfile)) {
     flag_data = FALSE,
     verbose = TRUE)
   out = dplyr::rename(out, HEADER_TIME_STAMP = time)
+  attr(out, "calibration_values") = attr(acc_df, "calibration_values")
   
   # # @MK on Jan 14, 2020: 
   # # adding the below line to address issue with MIMSunit package that allows 
