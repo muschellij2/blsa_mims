@@ -1,8 +1,7 @@
+
 #' This script generates table with summary of correlations between the 
 #' open-source measures. 
-#' 
-#' Input: 
-#' - /results/2021-03-25-correlations_between_measures.rds 
+
 
 rm(list = ls())
 library(tidyverse)
@@ -102,10 +101,5 @@ tbl_out <- datacc_A_form %>% left_join(datacc_B_form, by = "name")
 tbl_out
 
 View(tbl_out)
-
-# save data to file 
-# fpath_tmp <- paste0(here::here(), "/results/2021-03-25-table_measures_corr.csv")
-# fwrite(as.data.table(tbl_out), fpath_tmp) 
-
 
 
