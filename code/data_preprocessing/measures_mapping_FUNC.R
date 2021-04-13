@@ -11,26 +11,11 @@ library(tidyverse)
 library(data.table)
 
 # read data with GAM-fitted values
-
-# fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.rds")
-
-# fpaths <- list.files(paste0(here::here(), "/results"), full.names = TRUE)
-# fpaths <- fpaths[grepl("2021-04-05-mapping_between_measures_FITTED_qgam", fpaths)]
-# fpaths
-# dat_list <- lapply(fpaths, readRDS)
-# dat_fitted <- 
-#   dat_list[[1]] %>% 
-#   left_join(dat_list[[2]], by = "AC") %>% 
-#   left_join(dat_list[[3]], by = "AC") %>% 
-#   left_join(dat_list[[4]], by = "AC") 
-
-fpath_tmp <- paste0(here::here(), "/results_public/2021-04-07-mapping_between_measures_FITTED.rds")
-dat_fitted <- readRDS(fpath_tmp)
-
-# Note: the above file can be downloaded with
-# github_url <- ("https://github.com/muschellij2/blsa_mims/blob/master/results_public/mapping_between_measures_FITTED.rds?raw=true")
-# destfile <- paste0(getwd(), "/mapping_between_measures_FITTED.rds")
-# download.file(github_url, destfile, method = "curl")
+fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.txt")
+dat_fitted <- fread(fpath_tmp) 
+# Note: the above file can be read from GitHub repo once it becomes public 
+# fpath_tmp <- "https://raw.githubusercontent.com/muschellij2/blsa_mims/master/results_public/mapping_between_measures_FITTED.txt"
+# dat_fitted <- fread(fpath_tmp)
 
 
 
