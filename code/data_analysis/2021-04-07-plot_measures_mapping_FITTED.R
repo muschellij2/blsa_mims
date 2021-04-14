@@ -1,5 +1,6 @@
 
 rm(list = ls())
+library(data.table)
 library(tidyverse)
 library(cowplot)
 library(ggsci)
@@ -19,8 +20,8 @@ theme_set(theme_ggpr())
 # ------------------------------------------------------------------------------
 # read data 
 
-fpath_tmp <- paste0(here::here(), "/results_public/2021-04-07-mapping_between_measures_FITTED.rds")
-dat_fitted <- readRDS(fpath_tmp) %>% as.data.frame()
+fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.txt")
+dat_fitted <- fread(fpath_tmp) %>% as.data.frame()
 dim(dat_fitted)
 head(dat_fitted, 11) %>% round(5)
 
@@ -30,7 +31,7 @@ dim(dat_acc)
 
 
 # ------------------------------------------------------------------------------
-# plot 1: main manuscript part
+# plot 
 
 AC_max <- 15000
 
@@ -38,7 +39,7 @@ AC_max <- 15000
 dat_acc_plt <- 
   dat_acc %>%
   filter(AC < AC_max) %>%
-  filter(row_number() %% 300 == 0) %>%
+  filter(row_number() %% 100 == 0) %>%
   filter(AC > 0) %>%
   select(AC, MIMS, ENMO, MAD, AI) %>%
   pivot_longer(cols = -AC) %>%
@@ -66,15 +67,15 @@ for (i in 1 : length(names_levels)){ # i <- 1
     ggplot(dat_acc_plt_i, aes(x = AC, y = value)) + 
     geom_point(size = 0.1, alpha = 0.1, color = color_tmp) + 
     geom_line(data = dat_fitted_plt_i, aes(x = AC, y = value, group = 1), inherit.aes = FALSE) + 
-    labs(x = "ActiGraph AC", y = paste0(name_tmp, ""))
+    labs(x = "AC", y = paste0(name_tmp, ""))
   plt_list[[length(plt_list) + 1]] <- plt
 }
 
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2021-04-07-measures_mapping_fitted.png")
-ggsave(filename = plt_path, plot = plt, width = 8, height = 8) 
+plt_path <- paste0(here::here(), "/results_figures/2021-04-13-measures_mapping_fitted.png")
+ggsave(filename = plt_path, plot = plt, width = 8, height = 6.5) 
 
 
 
