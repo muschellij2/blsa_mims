@@ -80,6 +80,7 @@ tbl_minute <- tbl_minute %>% mutate(
   name = names_levels1, .before = everything()
 )
 tbl_minute
+View(tbl_minute)
 
 
 # summary: average error per participant 
@@ -95,7 +96,8 @@ tbl_participant <- tbl_participant %>% mutate(
   name = names_levels1, .before = everything()
 )
 tbl_participant
-  
+View(tbl_participant)
+
 
 # ------------------------------------------------------------------------------
 # generate plot 
