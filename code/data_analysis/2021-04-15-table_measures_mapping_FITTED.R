@@ -17,6 +17,9 @@ fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITT
 dat_fitted <- fread(fpath_tmp) %>% as.data.frame()
 dim(dat_fitted)
 
+
+# ------------------------------------------------------------------------------
+
 tbl_tmp <- rbind(
   apply(dat_fitted[1:2, ], 2, mean),
   dat_fitted[1853, ],

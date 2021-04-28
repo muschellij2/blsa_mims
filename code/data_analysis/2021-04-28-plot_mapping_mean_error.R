@@ -23,84 +23,10 @@ theme_set(theme_ggpr())
 
 
 # ------------------------------------------------------------------------------
-# read data 
+# read precomputed data 
 
-fpath_tmp <- paste0(here::here(), "/data_processed/2021-04-13-measures_masterfile_winsorized_imp_mapped.rds")
-dat_acc <- readRDS(fpath_tmp) %>% as.data.frame()
-str(dat_acc)
-
-
-# ------------------------------------------------------------------------------
-# compute bias, i.e. mean error: i-th participant mean(estimated_ij - true_ij)
-
-dat_acc_F <- dat_acc %>%
-  filter(wear_and_valid_flag == 1) %>%
-  mutate(
-    E_MIMS = AC_hat_from_MIMS - AC,
-    E_ENMO = AC_hat_from_ENMO - AC,
-    E_MAD  = AC_hat_from_MAD  - AC,
-    E_AI   = AC_hat_from_AI   - AC,
-    
-    SE_MIMS = E_MIMS^2,
-    SE_ENMO = E_ENMO^2,
-    SE_MAD  = E_MAD^2,
-    SE_AI   = E_AI^2
-  )
-
-dat_acc_agg <- 
-  dat_acc_F %>%
-  group_by(subj_id) %>%
-  summarise(
-    ME_MIMS = mean(E_MIMS),
-    ME_ENMO = mean(E_ENMO),
-    ME_MAD  = mean(E_MAD),
-    ME_AI   = mean(E_AI),
-    
-    MSE_MIMS = mean(SE_MIMS),
-    MSE_ENMO = mean(SE_ENMO),
-    MSE_MAD  = mean(SE_MAD),
-    MSE_AI   = mean(SE_AI),
-    
-    days_cnt = n_distinct(HEADER_TIME_STAMP_date),
-    AC_sum = sum(AC),
-    AC_mean = mean(AC)
-)
-
-
-# ------------------------------------------------------------------------------
-# generate tables
-
-# summary: ME per participant
-tbl_participant_ME <- rbind(
-  as.numeric(summary(dat_acc_agg$ME_MIMS)),
-  as.numeric(summary(dat_acc_agg$ME_ENMO)),
-  as.numeric(summary(dat_acc_agg$ME_MAD)),
-  as.numeric(summary(dat_acc_agg$ME_AI))
-) %>% round(1) %>%
-  as.data.frame() 
-names(tbl_participant_ME) <- c(names(summary(1:10)))
-tbl_participant_ME <- tbl_participant_ME %>% mutate(
-  name = names_levels1, .before = everything()
-)
-tbl_participant_ME
-View(tbl_participant_ME)
-
-
-# summary: MSE per participant
-tbl_participant_MSE <- rbind(
-  as.numeric(summary(dat_acc_agg$MSE_MIMS)),
-  as.numeric(summary(dat_acc_agg$MSE_ENMO)),
-  as.numeric(summary(dat_acc_agg$MSE_MAD)),
-  as.numeric(summary(dat_acc_agg$MSE_AI))
-) %>% round(0) %>%
-  as.data.frame() 
-names(tbl_participant_MSE) <- c(names(summary(1:10)))
-tbl_participant_MSE <- tbl_participant_MSE %>% mutate(
-  name = names_levels1, .before = everything()
-)
-tbl_participant_MSE
-View(tbl_participant_MSE)
-
+path_tmp <- paste0(here::here(), "/results/2021-04-28-mapping_mean_error.rds")
+dat_acc_agg <- readRDS(path_tmp)
 
 
 # ------------------------------------------------------------------------------
@@ -155,6 +81,6 @@ for (i in 1 : length(names_levels)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2021-04-21-measures_mapping_ME.png")
+plt_path <- paste0(here::here(), "/results_figures/2021-04-28-measures_mapping_ME.png")
 ggsave(filename = plt_path, plot = plt, width = 8, height = 6.5) 
 
