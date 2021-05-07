@@ -8,7 +8,7 @@ library(refund)
 options(scipen=999)
 
 # read minute-level measures master file
-dat_fpath <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile_winsorized.rds")
+dat_fpath <- paste0(here::here(), "/data_processed/2021-05-06-measures_masterfile_winsorized.rds")
 dat_acc <- readRDS(dat_fpath) 
 dat_acc <- dat_acc %>% 
   mutate(HEADER_TIME_STAMP_date = as.Date(HEADER_TIME_STAMP)) %>%
@@ -146,6 +146,16 @@ dat_acc_ext$AI_FPCAhat <- as.vector(t(Yhat_mat))
 summary(dat_acc_ext$AI_FPCAhat)
 summary(dat_acc_ext$AI)
 
+# ENMO_nc 
+Y_vec <- dat_acc_ext[, "ENMO_nc"]
+Y_vec[wear_and_valid_flag == 0] <- NA
+Y_mat <- matrix(Y_vec, byrow = TRUE, ncol = d)
+fpca_fit <- refund::fpca.face(Y_mat)
+Yhat_mat <- fpca_fit$Yhat
+dat_acc_ext$ENMO_nc_FPCAhat <- as.vector(t(Yhat_mat))
+summary(dat_acc_ext$ENMO_nc_FPCAhat)
+summary(dat_acc_ext$ENMO_nc)
+
 
 # ------------------------------------------------------------------------------
 # winsorize the FPCAhat values and cap with 0 from the bottom
@@ -170,12 +180,17 @@ dat_acc_ext$MAD_FPCAhat[dat_acc_ext$MAD_FPCAhat < 0] <- 0
 val_max_tmp <- max(dat_acc_ext$AI, na.rm = TRUE)
 dat_acc_ext$AI_FPCAhat[dat_acc_ext$AI_FPCAhat > val_max_tmp] <- val_max_tmp
 dat_acc_ext$AI_FPCAhat[dat_acc_ext$AI_FPCAhat < 0] <- 0
+# ENMO_nc 
+val_max_tmp <- max(dat_acc_ext$ENMO_nc, na.rm = TRUE)
+dat_acc_ext$ENMO_nc_FPCAhat[dat_acc_ext$ENMO_nc_FPCAhat > val_max_tmp] <- val_max_tmp
+dat_acc_ext$ENMO_nc_FPCAhat[dat_acc_ext$ENMO_nc_FPCAhat < 0] <- 0
 
 summary(dat_acc_ext$AC);   summary(dat_acc_ext$AC_FPCAhat)
 summary(dat_acc_ext$MIMS); summary(dat_acc_ext$MIMS_FPCAhat)
 summary(dat_acc_ext$ENMO); summary(dat_acc_ext$ENMO_FPCAhat)
 summary(dat_acc_ext$MAD);  summary(dat_acc_ext$MAD_FPCAhat)
 summary(dat_acc_ext$AI);   summary(dat_acc_ext$AI_FPCAhat)
+summary(dat_acc_ext$ENMO_nc);   summary(dat_acc_ext$ENMO_nc_FPCAhat)
 
 
 # ------------------------------------------------------------------------------
@@ -189,7 +204,8 @@ dat_acc_ext <-
     MIMS_imp   = ifelse(wear_and_valid_flag == 1, MIMS, MIMS_FPCAhat),
     ENMO_imp   = ifelse(wear_and_valid_flag == 1, ENMO, ENMO_FPCAhat),
     MAD_imp    = ifelse(wear_and_valid_flag == 1, MAD, MAD_FPCAhat),
-    AI_imp     = ifelse(wear_and_valid_flag == 1, AI, AI_FPCAhat)
+    AI_imp     = ifelse(wear_and_valid_flag == 1, AI, AI_FPCAhat),
+    ENMO_nc_imp     = ifelse(wear_and_valid_flag == 1, ENMO_nc, ENMO_nc_FPCAhat)
   ) 
 
 # make the checks it is what we wanted 
@@ -200,6 +216,7 @@ all(tmp_flag1$MIMS == tmp_flag1$MIMS_imp)
 all(tmp_flag1$ENMO == tmp_flag1$ENMO_imp)
 all(tmp_flag1$MAD  == tmp_flag1$MAD_imp)
 all(tmp_flag1$AI   == tmp_flag1$AI_imp)
+all(tmp_flag1$ENMO_nc   == tmp_flag1$ENMO_nc_imp)
 
 tmp_flag0 <- dat_acc_ext %>% filter(wear_and_valid_flag == 0) %>%
   arrange(AC)
@@ -209,6 +226,7 @@ all(tmp_flag0$MIMS_FPCAhat == tmp_flag0$MIMS_imp)
 all(tmp_flag0$ENMO_FPCAhat == tmp_flag0$ENMO_imp)
 all(tmp_flag0$MAD_FPCAhat  == tmp_flag0$MAD_imp)
 all(tmp_flag0$AI_FPCAhat   == tmp_flag0$AI_imp)
+all(tmp_flag0$ENMO_nc_FPCAhat   == tmp_flag0$ENMO_nc_imp)
 
 # look up the one with the highest number flagges
 subj_id_sub <- 
@@ -239,7 +257,7 @@ for (subj_id_tmp in subj_id_sub){
 str(dat_acc_ext)
 dat_acc_F <- 
   dat_acc_ext %>%
-  select(-c(AC, MIMS, MAD, ENMO, AI)) %>%
+  select(-c(AC, MIMS, MAD, ENMO, AI, ENMO_nc)) %>%
   select(-ends_with("_FPCAhat")) %>%
   arrange(subj_id, HEADER_TIME_STAMP)
 head(dat_acc_F)
@@ -249,9 +267,9 @@ head(dat_acc_F)
 nrow(dat_acc_F) / d
 
 # save as data frame
-fpath_out <- paste0(here::here(), "/data_processed/2021-04-01-measures_masterfile_winsorized_imp.rds")
+fpath_out <- paste0(here::here(), "/data_processed/2021-05-06-measures_masterfile_winsorized_imp.rds")
 saveRDS(dat_acc_F, fpath_out)
 
-# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/data_processed/2021-04-01-measures_masterfile_winsorized_imp.rds /dcl01/smart/data/activity/blsa_mims/data_processed/2021-04-01-measures_masterfile_winsorized_imp.rds 
+# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/data_processed/2021-05-06-measures_masterfile_winsorized_imp.rds /dcl01/smart/data/activity/blsa_mims/data_processed/2021-05-06-measures_masterfile_winsorized_imp.rds 
 
 

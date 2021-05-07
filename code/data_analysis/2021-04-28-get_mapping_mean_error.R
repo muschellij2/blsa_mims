@@ -3,19 +3,6 @@ rm(list = ls())
 library(tidyverse)
 options(scipen=999)
 
-# plot colors
-names_levels1 <- c("MIMS", "ENMO", "MAD", "AI")
-names_levels2 <- c("AC_hat_from_MIMS", "AC_hat_from_ENMO", "AC_hat_from_MAD", "AC_hat_from_AI")
-names_colors <- pal_futurama()(4)
-
-theme_ggpr <- function(){ 
-  font <- "Arial"  
-  theme_minimal(base_size = 12) %+replace%    
-    theme(panel.grid.major = element_line(size = 0.3),  
-          panel.grid.minor = element_blank(),
-          plot.title = element_text(size=12))}
-theme_set(theme_ggpr())
-
 
 # ------------------------------------------------------------------------------
 # read data 
