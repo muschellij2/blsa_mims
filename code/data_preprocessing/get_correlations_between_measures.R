@@ -6,17 +6,17 @@
 #' - We use valid days only, and valid minutes within valid days. 
 #' 
 #' input files: 
-#' > /data_processed/2021-03-25-measures_masterfile_winsorized.rds
+#' > /data_processed/2021-05-06-measures_masterfile_winsorized.rds
 #' 
 #' output files: 
-#' > /results/2021-03-25-correlations_between_measures.rds
+#' > /results/2021-05-06-correlations_between_measures.rds
 
 rm(list = ls())
 library(dplyr)
 library(data.table)
 library(lubridate)
 
-fpath_tmp <- paste0(here::here(), "/data_processed/2021-03-25-measures_masterfile_winsorized.rds")
+fpath_tmp <- paste0(here::here(), "/data_processed/2021-05-06-measures_masterfile_winsorized.rds")
 dat <- readRDS(fpath_tmp)
 dim(dat)
 # Jan 18, 2021: 5791560      10
@@ -25,6 +25,7 @@ dim(dat)
 # Feb 25, 2021: 6147240      10
 # Mar 3,  2021: 6147240      12
 # Mar 25, 2021: 5566920      12
+# May 6,  2021: 5566920      13
 
 # function to correlation matrix' upper triangle vector from data frame
 dat_to_corr_uppertri <- function(dat, corr_col_names = c("AC", "MIMS", "ENMO", "MAD", "AI")){
@@ -76,7 +77,7 @@ length(unique(dat_corr_comb$file_id))
 # [1] 655
 
 # save as data frame
-fout_path <- paste0(here::here(), "/results/2021-03-25-correlations_between_measures.rds")
+fout_path <- paste0(here::here(), "/results/2021-05-06-correlations_between_measures.rds")
 saveRDS(dat_corr_comb, fout_path)
 
-# get /dcl01/smart/data/activity/blsa_mims/results/2021-03-25-correlations_between_measures.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-03-25-correlations_between_measures.rds
+# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/results/2021-05-06-correlations_between_measures.rds /dcl01/smart/data/activity/blsa_mims/results/2021-05-06-correlations_between_measures.rds

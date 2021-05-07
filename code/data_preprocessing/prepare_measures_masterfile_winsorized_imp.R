@@ -270,6 +270,6 @@ nrow(dat_acc_F) / d
 fpath_out <- paste0(here::here(), "/data_processed/2021-05-06-measures_masterfile_winsorized_imp.rds")
 saveRDS(dat_acc_F, fpath_out)
 
-# put /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/data_processed/2021-05-06-measures_masterfile_winsorized_imp.rds /dcl01/smart/data/activity/blsa_mims/data_processed/2021-05-06-measures_masterfile_winsorized_imp.rds 
+# get /dcl01/smart/data/activity/blsa_mims/data_processed/2021-05-06-measures_masterfile_winsorized_imp.rds /Users/martakaras/Dropbox/_PROJECTS/blsa_mims/data_processed/2021-05-06-measures_masterfile_winsorized_imp.rds
 
 
