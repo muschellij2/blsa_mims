@@ -33,11 +33,11 @@ df_points <-
   filter(from11to5_exclude == 0)
 
 # precomputed GAM fitted values
-path_tmp <- paste0(here::here(), "/results/measures_corr_model_fitted_smooth_df.rds")
+path_tmp <- paste0(here::here(), "/results/2021-05-07-measures_corr_model_fitted_smooth_df.rds")
 df_fitted <- readRDS(path_tmp) 
 
 # precomputed GAM model summary
-path_tmp <- paste0(here::here(), "/results/measures_corr_model_fit_summary.rds")
+path_tmp <- paste0(here::here(), "/results/2021-05-07-measures_corr_model_fit_summary.rds")
 fit_summary_list <- readRDS(path_tmp)
 
 
@@ -105,7 +105,7 @@ for (i in 1 : length(names_levels)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2021-05-06-measures_corr_model_age_effect_twosmooths.png")
+plt_path <- paste0(here::here(), "/results_figures/2021-05-07-measures_corr_model_age_effect_twosmooths.png")
 ggsave(filename = plt_path, plot = plt, width = 8, height = 6.5) 
 
 
@@ -137,7 +137,7 @@ for (i in 1 : length(names_levels)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2021-05-06-measures_corr_model_bmi_effect_twosmooths.png")
+plt_path <- paste0(here::here(), "/results_figures/2021-05-07-measures_corr_model_bmi_effect_twosmooths.png")
 ggsave(filename = plt_path, plot = plt, width = 8, height = 6.5) 
 
 
