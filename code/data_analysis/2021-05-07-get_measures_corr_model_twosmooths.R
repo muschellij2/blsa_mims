@@ -69,7 +69,9 @@ name_labels3 <- paste0("y=corr", name_labels)
 # ------------------------------------------------------------------------------
 # MODEL SELECTION
 
-
+# empty list to store results
+model_fits <- vector(mode = "list", length = 0)
+  
 # ------------------------------------------------------------------------------
 # MIMS 
 
@@ -84,6 +86,7 @@ summary(gam(y ~ sex + bmi + age, data = dat))
 
 fit_MIMS <- gam(y ~ sex + bmi + age, data = dat)
 summary(fit_MIMS)
+model_fits[[length(model_fits)+1]] <- fit_MIMS
 
 
 # ------------------------------------------------------------------------------
@@ -100,6 +103,7 @@ summary(gam(y ~ sex + bmi + s(age, bs="cr"), data = dat))
 
 fit_ENMO <- gam(y ~ sex + bmi + s(age, bs="cr"), data = dat)
 summary(fit_ENMO)
+model_fits[[length(model_fits)+1]] <- fit_ENMO
 
 
 # ------------------------------------------------------------------------------
@@ -116,6 +120,7 @@ summary(gam(y ~ sex + bmi + age, data = dat))
 
 fit_MAD <- gam(y ~ sex + bmi + age, data = dat)
 summary(fit_MAD)
+model_fits[[length(model_fits)+1]] <- fit_MAD
 
 
 # ------------------------------------------------------------------------------
@@ -132,6 +137,7 @@ summary(gam(y ~ sex + bmi + age, data = dat))
 
 fit_AI <- gam(y ~ sex + bmi + age, data = dat)
 summary(fit_AI)
+model_fits[[length(model_fits)+1]] <- fit_AI
 
 
 
@@ -357,3 +363,7 @@ saveRDS(model_fitted_smooth_df_all, path_tmp)
 
 path_tmp <- paste0(here::here(), "/results/2021-05-07-measures_corr_model_fit_summary.rds")
 saveRDS(model_fit_summary, path_tmp)
+
+path_tmp <- paste0(here::here(), "/results/2021-06-03-measures_corr_model_fit.rds")
+names(model_fits) <- var_names[1:4]
+saveRDS(model_fits, path_tmp)

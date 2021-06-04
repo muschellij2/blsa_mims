@@ -96,7 +96,7 @@ for (i in 1 : length(names_levels)){ # i <- 1
     geom_line() + 
     theme(legend.position = "none") + 
     scale_color_futurama() + 
-    scale_y_continuous(limits = c(0.5, 1)) + 
+    scale_y_continuous(limits = c(0.6, 1)) + 
     labs(x = "Age",
          y = name_label_i)
   plt_list[[length(plt_list) + 1]] <- plt
@@ -128,7 +128,7 @@ for (i in 1 : length(names_levels)){ # i <- 1
     geom_line() + 
     theme(legend.position = "none") + 
     scale_color_futurama() + 
-    scale_y_continuous(limits = c(0.5, 1)) + 
+    scale_y_continuous(limits = c(0.6, 1)) + 
     labs(x = "BMI",
          y = name_label_i)
   plt_list[[length(plt_list) + 1]] <- plt

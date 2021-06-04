@@ -20,11 +20,7 @@ dim(dat_fitted)
 
 # ------------------------------------------------------------------------------
 
-tbl_tmp <- rbind(
-  apply(dat_fitted[1:2, ], 2, mean),
-  dat_fitted[1853, ],
-  dat_fitted[2303, ]
-)
+tbl_tmp <- dat_fitted %>% filter(AC %in% c(0, 1, 2, 1853, 2303))
 tbl_tmp %>% round(5)
 tbl_tmp %>% round(3)
 
