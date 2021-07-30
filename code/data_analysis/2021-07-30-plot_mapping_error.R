@@ -25,7 +25,7 @@ theme_set(theme_ggpr())
 # ------------------------------------------------------------------------------
 # read precomputed data 
 
-path_tmp <- paste0(here::here(), "/results/2021-07-15-mapping_MPE_MAPE_mapminutelevel.rds")
+path_tmp <- paste0(here::here(), "/results/2021-07-30-mapping_MPE_MAPE_mapminutelevel.rds")
 dat_acc_agg <- readRDS(path_tmp)
 head(dat_acc_agg)
 
@@ -70,6 +70,6 @@ for (i in 1 : length(names_levels)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "vh", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2021-07-15-measures_mapping_error_MPE.png")
+plt_path <- paste0(here::here(), "/results_figures/2021-07-30-measures_mapping_error_MPE.png")
 ggsave(filename = plt_path, plot = plt, width = 8, height = 6) 
 

@@ -15,7 +15,7 @@ names_levels1 <- c("MIMS", "ENMO", "MAD", "AI")
 # ------------------------------------------------------------------------------
 # read precomputed data 
 
-path_tmp <- paste0(here::here(), "/results/2021-07-15-mapping_MPE_MAPE_mapminutelevel.rds")
+path_tmp <- paste0(here::here(), "/results/2021-07-30-mapping_MPE_MAPE_mapminutelevel.rds")
 dat_acc_agg <- readRDS(path_tmp)
 
 

@@ -22,10 +22,12 @@ dat_acc_F <-
   summarise_all(sum) %>%
   mutate(
     # percentage error
-    PE_MIMS = 100 * (AC - AC_hat_from_MIMS)/AC,
-    PE_ENMO = 100 * (AC - AC_hat_from_ENMO)/AC,
-    PE_MAD  = 100 * (AC - AC_hat_from_MAD)/AC,
-    PE_AI   = 100 * (AC - AC_hat_from_AI)/AC,
+    # := difference between an experimental and theoretical value, divided by the 
+    #    theoretical value, multiplied by 100 to give a percent
+    PE_MIMS = 100 * (AC_hat_from_MIMS - AC)/AC,
+    PE_ENMO = 100 * (AC_hat_from_ENMO - AC)/AC,
+    PE_MAD  = 100 * (AC_hat_from_MAD - AC)/AC,
+    PE_AI   = 100 * (AC_hat_from_AI - AC)/AC,
     # absolute percentage error
     APE_MIMS = abs(PE_MIMS),
     APE_ENMO = abs(PE_ENMO),
@@ -52,6 +54,6 @@ dat_acc_agg <-
     AC_mean = mean(AC)
 )
 
-path_tmp <- paste0(here::here(), "/results/2021-07-15-mapping_MPE_MAPE_mapminutelevel.rds")
+path_tmp <- paste0(here::here(), "/results/2021-07-30-mapping_MPE_MAPE_mapminutelevel.rds")
 saveRDS(dat_acc_agg, path_tmp)
 
