@@ -544,6 +544,10 @@ table1_df_B_form$col2 = NA
 View(table1_df_A_form)
 View(table1_df_B_form)
 
+# to Latex 
+stargazer::stargazer(table1_df_A_form, summary = FALSE)
+stargazer::stargazer(table1_df_B_form, summary = FALSE)
+
 
 
 

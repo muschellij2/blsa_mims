@@ -123,6 +123,17 @@ tbl_out <- mm_agg_A_form %>% left_join(mm_agg_B_form, by = "name")
 tbl_out
 # View(tbl_out)
 
+tbl_out2 <- tbl_out %>% select(name, val_mean_sd_A, val_median_min_max_A)
+tbl_out2 <- filter(tbl_out2, name != "AC_LOG")
+row_idx <- c(
+  which(tbl_out2$name == "AC"),
+  which(tbl_out2$name == "MIMS"),
+  which(tbl_out2$name == "ENMO"),
+  which(tbl_out2$name == "MAD"),
+  which(tbl_out2$name == "AI")
+)
+tbl_out2 <- tbl_out2[row_idx, ]
+tbl_out2
 
 
 # ------------------------------------------------------------------------------
@@ -329,8 +340,23 @@ mm_agg_B_form <-
          val_median_min_max_B = val_median_min_max)
 
 tbl_out <- mm_agg_A_form %>% left_join(mm_agg_B_form, by = "name")
-View(tbl_out)
+# View(tbl_out)
 
+stargazer::stargazer(tbl_out, summary = FALSE)
+
+rm(tbl_out2)
+tbl_out2 <- tbl_out %>% select(name, val_mean_sd_A, val_median_min_max_A)
+tbl_out2 <- filter(tbl_out2, name != "AC_LOG")
+tbl_out2$name <- as.character(tbl_out2$name)
+row_idx <- c(
+  which(tbl_out2$name == "AC"),
+  which(tbl_out2$name == "MIMS"),
+  which(tbl_out2$name == "ENMO"),
+  which(tbl_out2$name == "MAD"),
+  which(tbl_out2$name == "AI")
+)
+tbl_out2 <- tbl_out2[row_idx, ]
+stargazer::stargazer(tbl_out2, summary = FALSE)
 
 
 

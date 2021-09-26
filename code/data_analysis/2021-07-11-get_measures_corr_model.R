@@ -158,6 +158,9 @@ table_df <-
   left_join(table_df_cond, by = "label")
 table_df
 
+# View(tbl_out)
+stargazer::stargazer(table_df, summary = FALSE)
+
 
 
 # ------------------------------------------------------------------------------

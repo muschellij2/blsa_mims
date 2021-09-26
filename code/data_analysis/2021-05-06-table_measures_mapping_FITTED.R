@@ -28,4 +28,5 @@ tbl_tmp %>% round(3)
 tbl_tmp <- tbl_tmp %>% round(3)
 tbl_tmp
 
-View(tbl_tmp)
+# View(tbl_tmp)
+stargazer::stargazer(tbl_tmp, summary = FALSE)

@@ -100,6 +100,4 @@ datacc_B_form <-
 tbl_out <- datacc_A_form %>% left_join(datacc_B_form, by = "name")
 tbl_out
 
-View(tbl_out)
-
 
