@@ -1,6 +1,6 @@
 
-#' Plot smoothed 24-hour median activity counts per minute for each age group. 
-#' Summarize error between AC and measures mapped from AC. 
+#' (A) Smoothed 24-hour median activity counts per minute for each age group. 
+#' (B) Smoothed medians of 24-hour cumulative activity counts per day for each age group. 
 #' Groups: <60-year old (green), 60- to 67-year old (red), 68- to 74-year old (blue), ≥75-year old (orange).
 
 
@@ -32,7 +32,7 @@ theme_set(theme_ggpr())
 # ------------------------------------------------------------------------------
 # read data 
 
-fpath_tmp <- paste0(here::here(), "/results/2021-07-20-pa_daily_pattern_by_age.rds")
+fpath_tmp <- paste0(here::here(), "/results/2021-05-06-pa_daily_pattern_by_age.rds")
 dat_acc_agg <- readRDS(fpath_tmp) %>% as.data.frame()
 str(dat_acc_agg)
 
@@ -76,7 +76,7 @@ for (i in 1 : length(names_levels1)){ # i <- 1
   plt_i <- 
     ggplot(plt_df_i %>% filter(fit_type == "fitted"), 
            aes(x = minute_label, y = value, color = age_cat_fact, group = age_cat_fact)) + 
-    geom_line(size = 1, alpha = 0.5) + 
+    geom_line(size = 1.5, alpha = 0.4) + 
     scale_color_manual(values = age_cat_colors) + 
     scale_y_continuous(limits = c(0, NA)) +
     scale_x_datetime(labels = date_format("%H:%M", tz = "UTC")) + 
@@ -97,7 +97,7 @@ for (i in 1 : length(names_levels1)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2021-07-20-replicate_pa_daily_pattern_by_age_ORIG_", W, ".png")
+plt_path <- paste0(here::here(), "/results_figures/2021-05-06-replicate_pa_daily_pattern_by_age_ORIG_", W, ".png")
 ggsave(filename = plt_path, plot = plt, width = 8, height = 8) 
 
 
@@ -143,15 +143,20 @@ for (i in 1 : length(names_levels2)){ # i <- 1
   plt_i <- 
     ggplot(plt_df %>% filter(fit_type == "fitted", name == "AC"), 
            aes(x = minute_label, y = value, color = age_cat_fact, group = age_cat_fact)) + 
-    geom_line(size = 1, alpha = 0.3) + 
+    geom_line(size = 3, alpha = 0.2) + 
     scale_color_manual(values = age_cat_colors) + 
     scale_y_continuous(limits = c(0, 2500)) +
     scale_x_datetime(labels = date_format("%H:%M", tz = "UTC")) + 
-    labs(x = "Time", y = TeX(y_lab[i]), color = "Age:") + 
+    labs(x = "Time", 
+         y = TeX(y_lab[i]),
+         color = "Age:") + 
+    # theme(legend.position = "none") + 
     geom_line(data = plt_df %>% filter(fit_type == "fitted", name == name_i), 
-              aes(x = minute_label, y = value, 
-                  color = age_cat_fact, group = age_cat_fact), 
-              size = 1, linetype = "dashed") 
+              aes(x = minute_label, y = value, color = age_cat_fact, group = age_cat_fact), size = 1) 
+    # geom_line(data = plt_df_L_i %>% filter(fit_type == "CI_lower"), 
+    #           aes(x = minute_label, y = value, color = age_cat, group = age_cat), linetype = 2) + 
+    # geom_line(data = plt_df_L_i %>% filter(fit_type == "CI_upper"), 
+    #           aes(x = minute_label, y = value, color = age_cat, group = age_cat), linetype = 2)
     if (i == 1){
     plt_i <- plt_i + theme(legend.position = c(0.2, 0.7))
   } else {
@@ -162,31 +167,6 @@ for (i in 1 : length(names_levels2)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2021-07-20-replicate_pa_daily_pattern_by_age_MAP_", W, ".png")
+plt_path <- paste0(here::here(), "/results_figures/2022-04-23-replicate_pa_daily_pattern_by_age_MAP_", W, ".png")
+# plt_path <- paste0(here::here(), "/results_figures/2021-05-06-replicate_pa_daily_pattern_by_age_MAP_", W, ".png")
 ggsave(filename = plt_path, plot = plt, width = 8, height = 6) 
-
-
-# ------------------------------------------------------------------------------
-# table: MAPE of differences
-
-error_df <- 
-  dat_acc_agg %>%
-  select(age_cat, minute_idx, AC, starts_with("AC_hat")) %>%
-  pivot_longer(cols = -c(age_cat, minute_idx, AC)) %>%
-  mutate(APE0 = abs(AC - value)) %>%
-  group_by(name) %>%
-  summarise(MAPE0_num = sum(APE0),
-            MAPE0_denom = sum(AC)) %>%
-  mutate(MAPE0 = MAPE0_num / MAPE0_denom,
-         MAPE0 = round(MAPE0 * 100, 1)) %>%
-  ungroup() %>%
-  as.data.frame()
-head(error_df)
-
-
-
-
-
-
-
-
