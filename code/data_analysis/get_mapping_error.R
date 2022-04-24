@@ -49,11 +49,22 @@ dat_acc_agg <-
     MAPE_ENMO = mean(APE_ENMO),
     MAPE_MAD  = mean(APE_MAD),
     MAPE_AI   = mean(APE_AI),
+    # median percentage error (MPE)
+    MdPE_MIMS = median(PE_MIMS),
+    MdPE_ENMO = median(PE_ENMO),
+    MdPE_MAD  = median(PE_MAD),
+    MdPE_AI   = median(PE_AI),
+    # median absolute percentage error (MAPE)
+    MdAPE_MIMS = median(APE_MIMS),
+    MdAPE_ENMO = median(APE_ENMO),
+    MdAPE_MAD  = median(APE_MAD),
+    MdAPE_AI   = median(APE_AI),
     days_cnt = n_distinct(HEADER_TIME_STAMP_date),
     AC_sum = sum(AC),
     AC_mean = mean(AC)
 )
 
-path_tmp <- paste0(here::here(), "/results/2021-07-30-mapping_MPE_MAPE_mapminutelevel.rds")
+# path_tmp <- paste0(here::here(), "/results/2021-07-30-mapping_MPE_MAPE_mapminutelevel.rds")
+path_tmp <- paste0(here::here(), "/results/2022-04-23-mapping_MPE_MAPE_MdPE_MdAPE_mapminutelevel.rds")
 saveRDS(dat_acc_agg, path_tmp)
 
