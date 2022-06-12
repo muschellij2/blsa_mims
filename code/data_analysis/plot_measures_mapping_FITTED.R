@@ -74,8 +74,10 @@ for (i in 1 : length(names_levels)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2021-05-06-measures_mapping_fitted.png")
-ggsave(filename = plt_path, plot = plt, width = 8, height = 6.5) 
+# plt_path <- paste0(here::here(), "/results_figures/figures_final/measures_mapping_fitted.png")
+plt_path <- paste0(here::here(), "/results_figures/figures_final/Figure1_rev20220504.png")
+ggsave(filename = plt_path, plot = plt, width = 8, height = 6.5, 
+       bg = 'white', dpi = 150) 
 
 
 

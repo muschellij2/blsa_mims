@@ -267,10 +267,51 @@ table1_var[i]  <- "Race: Black"
 table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 2, na.rm = TRUE)
 table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 2, na.rm = TRUE)/denom_cnt
 
+# i <- sum(!is.na(table1_var)) + 1
+# table1_var[i]  <- "Race: Other"
+# table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL %in% c(0, 3:9), na.rm = TRUE)
+# table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL %in% c(0, 3:9), na.rm = TRUE)/denom_cnt
+
 i <- sum(!is.na(table1_var)) + 1
-table1_var[i]  <- "Race: Other"
-table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL %in% c(0, 3:9), na.rm = TRUE)
-table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL %in% c(0, 3:9), na.rm = TRUE)/denom_cnt
+table1_var[i]  <- "Race: American Indian or Alaska Native"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 3, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 3, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Other Asian or Other Pacific Islander"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 0, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 0, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Chinese"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 4, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 4, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Japanese"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 5, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 5, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Hawaiian"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 6, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 6, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Other NonWhite"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 7, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 7, na.rm = TRUE)/denom_cnt
+
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Filipino"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 8, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 8, na.rm = TRUE)/denom_cnt
+
+i <- sum(!is.na(table1_var)) + 1
+table1_var[i]  <- "Race: Not Classifiable"
+table1_val1[i] <- sum(interview_SUB_race$reported_race_FINAL == 9, na.rm = TRUE)
+table1_val2[i] <- sum(interview_SUB_race$reported_race_FINAL == 9, na.rm = TRUE)/denom_cnt
 
 i <- sum(!is.na(table1_var)) + 1
 table1_var[i]  <- "Race: Not reported"

@@ -167,6 +167,6 @@ for (i in 1 : length(names_levels2)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "v", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2022-04-23-replicate_pa_daily_pattern_by_age_MAP_", W, ".png")
-# plt_path <- paste0(here::here(), "/results_figures/2021-05-06-replicate_pa_daily_pattern_by_age_MAP_", W, ".png")
-ggsave(filename = plt_path, plot = plt, width = 8, height = 6) 
+plt_path <- paste0(here::here(), "/results_figures/figures_final/Figure2_rev20220504.png")
+ggsave(filename = plt_path, plot = plt, width = 8, height = 6, 
+       bg = 'white', dpi = 150) 

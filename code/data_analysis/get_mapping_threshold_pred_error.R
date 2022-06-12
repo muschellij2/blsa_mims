@@ -1,6 +1,7 @@
 
 rm(list = ls())
 library(tidyverse)
+library(data.table)
 options(scipen=999)
 
 
@@ -212,9 +213,9 @@ df_out <- rbind(df_out, sens_df); rm(sens_df); dim(df_out)
 
 
 # ------------------------------------------------------------------------------
-# PART (3): AC_thresh = 2303
+# PART (3): AC_thresh = 2860
 
-AC_thresh <- 2303
+AC_thresh <- 2860
 
 thresh_vec <- dat_fitted %>% filter(AC == AC_thresh) %>% unlist()
 names(thresh_vec) <- gsub("_fitted", "", names(thresh_vec))

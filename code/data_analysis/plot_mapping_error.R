@@ -70,6 +70,9 @@ for (i in 1 : length(names_levels)){ # i <- 1
 plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "vh", byrow = TRUE)
 plt
 
-plt_path <- paste0(here::here(), "/results_figures/2021-07-30-measures_mapping_error_MPE.png")
-ggsave(filename = plt_path, plot = plt, width = 8, height = 6) 
+
+plt_path <- paste0(here::here(), "/results_figures/figures_final/FigureS1_MultimediaAppendix3_rev20220504.png")
+ggsave(filename = plt_path, plot = plt, width = 8, height = 6, 
+       bg = 'white', dpi = 150) 
+
 

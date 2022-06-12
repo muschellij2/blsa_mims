@@ -90,7 +90,7 @@ tbl_2_form
 # ------------------------------------------------------------------------------
 tbl_3 <- 
   df_out %>%
-  filter(AC_thresh == 2303) %>%
+  filter(AC_thresh == 2860) %>%
   select(-AC_thresh) %>%
   group_by(name, performance_measure) %>%
   summarise(
@@ -116,7 +116,7 @@ tbl_3_form <-
          performance_measure,
          val_mean_sd) %>%
   pivot_wider(names_from = performance_measure, values_from = val_mean_sd) %>%
-  mutate(label = "AC > 2303", .before = everything())
+  mutate(label = "AC > 2860", .before = everything())
 tbl_3_form
 
 
