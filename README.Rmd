@@ -17,23 +17,69 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 <<<<<<< HEAD
+The project uses raw accelerometry data from ~700 participants in Baltimore Longitudinal Study of Aging (BLSA), each monitored for approx. 1 week with a wrist-worn ActiGraph sensor.  
+
+
 1. We wish to determine if alternative measures of physical activity, derived from the raw acceleration signals, track similarly with health outcomes as activity counts.  Namely, we focus on open-source pipelines and implementations to transform raw files into activity summaries.  
 2. As activity counts have been used in a number of studies and activity-level thresholds have been derived, we wish to estimate equivalent thresholds in these open-source measures to allow for similar analysis done with activity counts. 
 3. We describe the advantages of using these open source tools and present an R package that can aid in this analysis, while also providing the source code to generate our analysis. 
-=======
-The project uses raw accelerometry data from ~700 participants in Baltimore Longitudinal Study of Aging (BLSA), each monitored for aporox. 1 week with a wrist-worn ActiGraph sensor.  
 
 The goal of the project is to:
->>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
 
 1. Develop and use R software to aggregate raw data at minute-level with open-source measures: MIMS, ENMO, MAD, AI.
 
-<<<<<<< HEAD
-* [BLSA_MIMS draft](https://docs.google.com/document/d/1fRP6zrzATz7mky-c44kSXnRAMXghd-DEhVb-YokLtS4/edit?usp=sharing)
+2. Quantify association between AC and open-source measures marginally and conditionally on age, sex and BMI. 
 
-(based on [John's first draft](https://docs.google.com/document/d/11ULWQlMqsx4NHarXwDPZHmrTHVNL51ZUNEitQhYVF68/edit?usp=sharing))
+3. Harmonize minute-level AC with open-source measures via one-to-one mapping.  
 
-# Repo documentation 
+4. Reproduce some of the published BLSA results that used AC with the use of the open-source measures. 
+
+
+
+# Repository navigation
+
+For practitioners, potentially most useful R code scripts and result files are referenced below. 
+
+### Methods 
+
+- R code script to generate raw data quality check flags: [code/data_preprocessing/mat_to_minute_quality_flag.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_to_minute_quality_flag.R)
+
+- R code script to compute MIMS, MAD, AI: [code/data_preprocessing/mat_to_open_source_measures.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_to_open_source_measures.R)
+
+- R code script to compute ENMO (with data calibration step):  [code/data_preprocessing/mat_calibrated_to_open_source_measures.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_calibrated_to_open_source_measures.R)
+
+- R code script to compute valid minute and valid day flags and to filter the participants: [code/data_preprocessing/prepare_measures_masterfile.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/prepare_measures_masterfile.R)
+
+- R code script to perform data imputation: [code/data_preprocessing/prepare_measures_masterfile_winsorized_imp.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/prepare_measures_masterfile_winsorized_imp.R)
+
+### Results 
+
+- CSV table with model-fitted values of MIMS, ENMO, MAD, AI for a range of AC values: [results_public/mapping_between_measures_FITTED.txt](https://raw.githubusercontent.com/muschellij2/blsa_mims/master/results_public/mapping_between_measures_FITTED.txt)
+
+- R code script with fast mapping functions between AC and MIMS, ENMO, MAD, AI: [code/data_preprocessing/measures_mapping_FUNC.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/measures_mapping_FUNC.R)
+
+
+
+
+# Citation
+The paper is located at https://doi.org/10.2196/38077.
+
+Please cite this work as:
+```
+@article{karas2022comparison,
+  title={Comparison of accelerometry-based measures of physical activity: Retrospective observational data analysis study},
+  author={Karas, Marta and Muschelli, John and Leroux, Andrew and Urbanek, Jacek K and Wanigatunga, Amal A and Bai, Jiawei and Crainiceanu, Ciprian M and Schrack, Jennifer A},
+  journal={JMIR mHealth and uHealth},
+  volume={10},
+  number={7},
+  pages={e38077},
+  year={2022},
+  publisher={JMIR Publications Toronto, Canada}
+}
+```
+
+
+# Previous Repo documentation 
 
 ## code
 
@@ -65,119 +111,3 @@ The goal of the project is to:
 * `resample_data.R` -- TODO JM
 * `rsync_gt3x.R` -- script to upload `/gt3x` files from external location 
 * `WearNonWear.R` -- wear/non-wear algorithm; likely former version of [arctools/R/get_wear_flag.R](https://github.com/martakarass/arctools/blob/master/R/get_wear_flag.R) 
-
-Also: 
-
-* files with prefix `CSV.e4069838.` -- TODO JM [MK: looks like job logs, to be deleted?]
-
-## covariates
-
-This directory contains covariates data files. 
-
-The `mastervisit` files (`.sas7bdat`, `.rdata`, `.dta`) are last modified on 2020-08-18 are up to date as of 2020-12-30 (clarified with Jennifer Schrack on 2020-12-30). 
-
-## csv
-
-This directory contains `.csv.gz` files with name suffix `60sec.csv.gz`. These are the raw output from ActiLife giving activity counts -- proprietary minute-level summary statistic of accelerometry data. 
-
-Specifically, these are "vector magnitude of counts", i.e. a square root of the sum of squares of X, Y, and Z axis-specific activity counts (clarified with Jacek Urbanek on 2020-12-10). 
-
-The files in `csv` directory are last modified on 2020-08-14 are up to date as of 2020-12-28 (clarified with Jacek Urbanek on 2020-12-28). 
-
-## gt3x
-
-* `gt3x.gz` suffix files -- TODO JM
-* `RAW.csv.gz` suffix files (few) -- TODO JM
-* `_MIMS.csv.gz` suffix files (few) -- TODO JM
-
-Also: 
-
-* `gzip.sh` -- TODO JM
-* `helper_functions.R` -- TODO JM [MK: are these some older copy of up to date code file of similar name at blsa_mims/code/helper_functions.R ? ]
-* `make_mims.R` -- TODO JM [MK: are these some older copy of up to date code file of similar name at blsa_mims/code/make_mims.R ? ]
-* `synced.txt` -- TODO JM [MK: looks empty ]
-
-## mats
-
-This directory contains Matlab `.mat` files. These are the raw output from ActiLife giving acceleration measurements [*g*] along three orthogonal axes (subsecond-level accelerometry data). These were received from Jacek Urbanek between 2020-12-27 and 2020-12-29. 
-
-These are "new" MATLAB files, which means they are essentially HDF5 files. Old `.mat` files can be read using `R.matlab::readMat`, these cannot.  Since they are `hdf5` files, we can use `rhdf5` to read them in.  In `code/helper_functions.R` the `read_acc_mat` function can read it in as a data.frame.
-
-## mats_old
-
-Previous (outdated) version of `mats` directory. 
-
-## open_measures
-
-* `_MIMS.csv.gz` suffix files -- files with MIMS computed for  all files at `/gt3x`; derived with `code/make_mims.R` file [TODO JM : am I right it used /gt3x?]
-
-
-## qc 
-
-* `_read.gt3x.txt` suffix files -- TODO JM
-* `_AGread.txt` suffix files -- TODO JM
-
-## resampled
-
-* `.rds` files -- TODO JM 
-
-## results
-
-* `comparison_data.rds` -- TODO JM
-* `device_info.rds` --  summary of meta data (Acceleration Max, Acceleration Min, Serial Number, Device Type) extracted for all files in `/gt3x`; derived with `/code/get_metadata.R`
-=======
-2. Quantify association between AC and open-source measures marginally and conditionally on age, sex and BMI. 
-
-3. Harmonize minute-level AC with open-source measures via one-to-one mapping.  
-
-4. Reproduce some of the published BLSA results that used AC with the use of the open-source measures. 
->>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
-
-# Repository navigation
-
-For practitioners, potentially most useful R code scripts and result files are referenced below. 
-
-<<<<<<< HEAD
-# Citation
-the paper is located at https://doi.org/10.2196/38077.
-
-Please cite this work as:
-```
-@article{karas2022comparison,
-  title={Comparison of accelerometry-based measures of physical activity: Retrospective observational data analysis study},
-  author={Karas, Marta and Muschelli, John and Leroux, Andrew and Urbanek, Jacek K and Wanigatunga, Amal A and Bai, Jiawei and Crainiceanu, Ciprian M and Schrack, Jennifer A},
-  journal={JMIR mHealth and uHealth},
-  volume={10},
-  number={7},
-  pages={e38077},
-  year={2022},
-  publisher={JMIR Publications Toronto, Canada}
-}
-```
-=======
-### Methods 
-
-- R code script to generate raw data quality check flags: [code/data_preprocessing/mat_to_minute_quality_flag.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_to_minute_quality_flag.R)
-
-- R code script to compute MIMS, MAD, AI: [code/data_preprocessing/mat_to_open_source_measures.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_to_open_source_measures.R)
->>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
-
-- R code script to compute ENMO (with data calibration step):  [code/data_preprocessing/mat_calibrated_to_open_source_measures.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_calibrated_to_open_source_measures.R)
-
-- R code script to compute valid minute and valid day flags and to filter the participants: [code/data_preprocessing/prepare_measures_masterfile.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/prepare_measures_masterfile.R)
-
-- R code script to perform data imputation: [code/data_preprocessing/prepare_measures_masterfile_winsorized_imp.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/prepare_measures_masterfile_winsorized_imp.R)
-
-### Results 
-
-- CSV table with model-fitted values of MIMS, ENMO, MAD, AI for a range of AC values: [results_public/mapping_between_measures_FITTED.txt](https://raw.githubusercontent.com/muschellij2/blsa_mims/master/results_public/mapping_between_measures_FITTED.txt)
-
-- R code script with fast mapping functions between AC and MIMS, ENMO, MAD, AI: [code/data_preprocessing/measures_mapping_FUNC.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/measures_mapping_FUNC.R)
-
-
-
-
-
-
-
-
