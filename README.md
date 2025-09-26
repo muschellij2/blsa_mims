@@ -1,12 +1,16 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<<<<<<< HEAD
 # blsa_mims
+=======
+# BLSA MIMS project
+>>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
+<<<<<<< HEAD
 1.  We wish to determine if alternative measures of physical activity,
     derived from the raw acceleration signals, track similarly with
     health outcomes as activity counts. Namely, we focus on open-source
@@ -19,19 +23,37 @@
 3.  We describe the advantages of using these open source tools and
     present an R package that can aid in this analysis, while also
     providing the source code to generate our analysis.
+=======
+The project uses raw accelerometry data from \~700 participants in
+Baltimore Longitudinal Study of Aging (BLSA), each monitored for aporox.
+1 week with a wrist-worn ActiGraph sensor.
 
-# Manuscript draft
+The goal of the project is to:
+>>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
 
+1.  Develop and use R software to aggregate raw data at minute-level
+    with open-source measures: MIMS, ENMO, MAD, AI.
+
+<<<<<<< HEAD
 - [BLSA_MIMS
   draft](https://docs.google.com/document/d/1fRP6zrzATz7mky-c44kSXnRAMXghd-DEhVb-YokLtS4/edit?usp=sharing)
+=======
+2.  Quantify association between AC and open-source measures marginally
+    and conditionally on age, sex and BMI.
 
-(based on [John’s first
-draft](https://docs.google.com/document/d/11ULWQlMqsx4NHarXwDPZHmrTHVNL51ZUNEitQhYVF68/edit?usp=sharing))
+3.  Harmonize minute-level AC with open-source measures via one-to-one
+    mapping.
+>>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
 
-# Repo documentation
+4.  Reproduce some of the published BLSA results that used AC with the
+    use of the open-source measures.
 
-## code
+# Repository navigation
 
+For practitioners, potentially most useful R code scripts and result
+files are referenced below.
+
+<<<<<<< HEAD
 - `add_nonwear.R` – runs WearNonWear function; reads files with suffix
   `60sec.csv.gz` from `/csv`, runs WearNonWear algorithm, saves as file
   with suffix `_nonwear.csv.gz`\[MK: TODO JM was it actually saved? I do
@@ -78,26 +100,38 @@ draft](https://docs.google.com/document/d/11ULWQlMqsx4NHarXwDPZHmrTHVNL51ZUNEitQ
 - `rsync_gt3x.R` – script to upload `/gt3x` files from external location
 - `WearNonWear.R` – wear/non-wear algorithm; likely former version of
   [arctools/R/get_wear_flag.R](https://github.com/martakarass/arctools/blob/master/R/get_wear_flag.R)
+=======
+### Methods
+>>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
 
-Also:
+-   R code script to generate raw data quality check flags:
+    [code/data\_preprocessing/mat\_to\_minute\_quality\_flag.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_to_minute_quality_flag.R)
 
+<<<<<<< HEAD
 - files with prefix `CSV.e4069838.` – TODO JM \[MK: looks like job logs,
   to be deleted?\]
+=======
+-   R code script to compute MIMS, MAD, AI:
+    [code/data\_preprocessing/mat\_to\_open\_source\_measures.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_to_open_source_measures.R)
+>>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
 
-## covariates
+-   R code script to compute ENMO (with data calibration step):
+    [code/data\_preprocessing/mat\_calibrated\_to\_open\_source\_measures.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_calibrated_to_open_source_measures.R)
 
-This directory contains covariates data files.
+-   R code script to compute valid minute and valid day flags and to
+    filter the participants:
+    [code/data\_preprocessing/prepare\_measures\_masterfile.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/prepare_measures_masterfile.R)
 
-The `mastervisit` files (`.sas7bdat`, `.rdata`, `.dta`) are last
-modified on 2020-08-18 are up to date as of 2020-12-30 (clarified with
-Jennifer Schrack on 2020-12-30).
+-   R code script to perform data imputation:
+    [code/data\_preprocessing/prepare\_measures\_masterfile\_winsorized\_imp.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/prepare_measures_masterfile_winsorized_imp.R)
 
-## csv
+### Results
 
-This directory contains `.csv.gz` files with name suffix `60sec.csv.gz`.
-These are the raw output from ActiLife giving activity counts –
-proprietary minute-level summary statistic of accelerometry data.
+-   CSV table with model-fitted values of MIMS, ENMO, MAD, AI for a
+    range of AC values:
+    [results\_public/mapping\_between\_measures\_FITTED.txt](https://raw.githubusercontent.com/muschellij2/blsa_mims/master/results_public/mapping_between_measures_FITTED.txt)
 
+<<<<<<< HEAD
 Specifically, these are “vector magnitude of counts”, i.e. a square root
 of the sum of squares of X, Y, and Z axis-specific activity counts
 (clarified with Jacek Urbanek on 2020-12-10).
@@ -176,3 +210,8 @@ Please cite this work as:
       year={2022},
       publisher={JMIR Publications Toronto, Canada}
     }
+=======
+-   R code script with fast mapping functions between AC and MIMS, ENMO,
+    MAD, AI:
+    [code/data\_preprocessing/measures\_mapping\_FUNC.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/measures_mapping_FUNC.R)
+>>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db

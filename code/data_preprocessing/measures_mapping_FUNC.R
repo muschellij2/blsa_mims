@@ -5,18 +5,12 @@
 #' mapping g: {MIMS, ENMO, MAD, AI} -> AC
 #' mapping f: AC -> {MIMS, ENMO, MAD, AI}
 
-
-rm(list = ls())
 library(tidyverse)
 library(data.table)
 
 # read data with GAM-fitted values
-fpath_tmp <- paste0(here::here(), "/results_public/mapping_between_measures_FITTED.txt")
+fpath_tmp <- "https://raw.githubusercontent.com/muschellij2/blsa_mims/master/results_public/mapping_between_measures_FITTED.txt"
 dat_fitted <- fread(fpath_tmp) 
-# Note: the above file can be read from GitHub repo once it becomes public 
-# fpath_tmp <- "https://raw.githubusercontent.com/muschellij2/blsa_mims/master/results_public/mapping_between_measures_FITTED.txt"
-# dat_fitted <- fread(fpath_tmp)
-
 
 
 # ------------------------------------------------------------------------------

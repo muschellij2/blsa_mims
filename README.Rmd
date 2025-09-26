@@ -11,17 +11,24 @@ knitr::opts_chunk$set(
 )
 ```
 
-# blsa_mims
+# BLSA MIMS project
 
 <!-- badges: start -->
 <!-- badges: end -->
 
+<<<<<<< HEAD
 1. We wish to determine if alternative measures of physical activity, derived from the raw acceleration signals, track similarly with health outcomes as activity counts.  Namely, we focus on open-source pipelines and implementations to transform raw files into activity summaries.  
 2. As activity counts have been used in a number of studies and activity-level thresholds have been derived, we wish to estimate equivalent thresholds in these open-source measures to allow for similar analysis done with activity counts. 
 3. We describe the advantages of using these open source tools and present an R package that can aid in this analysis, while also providing the source code to generate our analysis. 
+=======
+The project uses raw accelerometry data from ~700 participants in Baltimore Longitudinal Study of Aging (BLSA), each monitored for aporox. 1 week with a wrist-worn ActiGraph sensor.  
 
-# Manuscript draft 
+The goal of the project is to:
+>>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
 
+1. Develop and use R software to aggregate raw data at minute-level with open-source measures: MIMS, ENMO, MAD, AI.
+
+<<<<<<< HEAD
 * [BLSA_MIMS draft](https://docs.google.com/document/d/1fRP6zrzATz7mky-c44kSXnRAMXghd-DEhVb-YokLtS4/edit?usp=sharing)
 
 (based on [John's first draft](https://docs.google.com/document/d/11ULWQlMqsx4NHarXwDPZHmrTHVNL51ZUNEitQhYVF68/edit?usp=sharing))
@@ -118,9 +125,19 @@ Previous (outdated) version of `mats` directory.
 
 * `comparison_data.rds` -- TODO JM
 * `device_info.rds` --  summary of meta data (Acceleration Max, Acceleration Min, Serial Number, Device Type) extracted for all files in `/gt3x`; derived with `/code/get_metadata.R`
+=======
+2. Quantify association between AC and open-source measures marginally and conditionally on age, sex and BMI. 
 
+3. Harmonize minute-level AC with open-source measures via one-to-one mapping.  
 
+4. Reproduce some of the published BLSA results that used AC with the use of the open-source measures. 
+>>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
 
+# Repository navigation
+
+For practitioners, potentially most useful R code scripts and result files are referenced below. 
+
+<<<<<<< HEAD
 # Citation
 the paper is located at https://doi.org/10.2196/38077.
 
@@ -137,12 +154,25 @@ Please cite this work as:
   publisher={JMIR Publications Toronto, Canada}
 }
 ```
+=======
+### Methods 
 
+- R code script to generate raw data quality check flags: [code/data_preprocessing/mat_to_minute_quality_flag.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_to_minute_quality_flag.R)
 
+- R code script to compute MIMS, MAD, AI: [code/data_preprocessing/mat_to_open_source_measures.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_to_open_source_measures.R)
+>>>>>>> 84cdd686ca4176fe64e1928b4423bbe71da127db
 
+- R code script to compute ENMO (with data calibration step):  [code/data_preprocessing/mat_calibrated_to_open_source_measures.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/mat_calibrated_to_open_source_measures.R)
 
+- R code script to compute valid minute and valid day flags and to filter the participants: [code/data_preprocessing/prepare_measures_masterfile.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/prepare_measures_masterfile.R)
 
+- R code script to perform data imputation: [code/data_preprocessing/prepare_measures_masterfile_winsorized_imp.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/prepare_measures_masterfile_winsorized_imp.R)
 
+### Results 
+
+- CSV table with model-fitted values of MIMS, ENMO, MAD, AI for a range of AC values: [results_public/mapping_between_measures_FITTED.txt](https://raw.githubusercontent.com/muschellij2/blsa_mims/master/results_public/mapping_between_measures_FITTED.txt)
+
+- R code script with fast mapping functions between AC and MIMS, ENMO, MAD, AI: [code/data_preprocessing/measures_mapping_FUNC.R](https://github.com/muschellij2/blsa_mims/blob/master/code/data_preprocessing/measures_mapping_FUNC.R)
 
 
 
